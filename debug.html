@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Share Button Test</title>
+    <style>
+        .results-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+            background: yellow;
+            padding: 20px;
+            border: 2px solid red;
+        }
+        
+        .primary-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .secondary-btn {
+            background: #718096;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Debug: Share Button Test</h1>
+    
+    <p>This should show both buttons with yellow background and red border:</p>
+    
+    <div class="results-actions">
+        <button id="share-results" class="primary-btn">📤 Share Results</button>
+        <button id="start-over" class="secondary-btn">Start Over</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const shareBtn = document.getElementById('share-results');
+            const startBtn = document.getElementById('start-over');
+            
+            console.log('Share button found:', !!shareBtn);
+            console.log('Start button found:', !!startBtn);
+            
+            if (shareBtn) {
+                shareBtn.addEventListener('click', function() {
+                    alert('Share button clicked!');
+                });
+            }
+            
+            if (startBtn) {
+                startBtn.addEventListener('click', function() {
+                    alert('Start over button clicked!');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
