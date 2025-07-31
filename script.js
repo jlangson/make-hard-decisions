@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const proceedToScoringBtn = document.getElementById('proceed-to-scoring');
     const calculateResultBtn = document.getElementById('calculate-result');
     const startOverBtn = document.getElementById('start-over');
+    const shareResultsBtn = document.getElementById('share-results');
 
     // Sections
     const brainstormSection = document.getElementById('brainstorm-section');
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         proceedToScoringBtn.addEventListener('click', proceedToScoring);
         calculateResultBtn.addEventListener('click', calculateResult);
         startOverBtn.addEventListener('click', startOver);
+        shareResultsBtn.addEventListener('click', shareResults);
 
         // Handle dynamic choice input changes
         choicesContainer.addEventListener('input', handleChoiceInput);
@@ -496,5 +498,157 @@ document.addEventListener('DOMContentLoaded', function() {
         if (choiceInputs.length > 0) {
             choiceInputs[0].focus();
         }
+    }
+
+    function shareResults() {
+        const resultData = generateShareText();
+        
+        // Try to use the Web Share API if available (mobile devices)
+        if (navigator.share) {
+            navigator.share({
+                title: 'My Decision Analysis Results',
+                text: resultData.text,
+                url: window.location.href
+            }).catch(err => {
+                console.log('Error sharing:', err);
+                fallbackShare(resultData.text);
+            });
+        } else {
+            fallbackShare(resultData.text);
+        }
+    }
+
+    function fallbackShare(text) {
+        // Copy to clipboard as fallback
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                showShareFeedback('Results copied to clipboard! 📋');
+            }).catch(() => {
+                showTextAreaShare(text);
+            });
+        } else {
+            showTextAreaShare(text);
+        }
+    }
+
+    function showTextAreaShare(text) {
+        // Create a modal with the shareable text
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        `;
+
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+        `;
+
+        modalContent.innerHTML = `
+            <h3 style="margin-top: 0; color: #2d3748;">Share Your Decision Analysis</h3>
+            <textarea style="width: 100%; height: 200px; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 0.9rem; resize: vertical;" readonly>${text}</textarea>
+            <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="copy-text-btn" style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Copy Text</button>
+                <button id="close-modal-btn" style="background: #718096; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">Close</button>
+            </div>
+        `;
+
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        // Event listeners for modal
+        document.getElementById('copy-text-btn').addEventListener('click', () => {
+            const textarea = modalContent.querySelector('textarea');
+            textarea.select();
+            document.execCommand('copy');
+            showShareFeedback('Results copied to clipboard! 📋');
+            document.body.removeChild(modal);
+        });
+
+        document.getElementById('close-modal-btn').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+
+    function showShareFeedback(message) {
+        const feedback = document.createElement('div');
+        feedback.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1001;
+            font-weight: 600;
+        `;
+        feedback.textContent = message;
+        document.body.appendChild(feedback);
+
+        setTimeout(() => {
+            if (document.body.contains(feedback)) {
+                document.body.removeChild(feedback);
+            }
+        }, 3000);
+    }
+
+    function generateShareText() {
+        // Get the current results data
+        const resultsContent = document.getElementById('results-content');
+        const decisionType = resultsContent.querySelector('h3').textContent;
+        const winner = resultsContent.querySelector('p strong')?.nextSibling?.textContent?.trim();
+        
+        // Get the scores from the result items
+        const resultItems = resultsContent.querySelectorAll('.result-item');
+        let optionAScore, optionBScore;
+        
+        resultItems.forEach(item => {
+            const scoreText = item.querySelector('p')?.textContent;
+            if (scoreText && scoreText.includes('Total Points:')) {
+                const score = scoreText.match(/Total Points:\s*(-?\d+)/);
+                if (score) {
+                    if (item.textContent.includes(selectedOptionA)) {
+                        optionAScore = score[1];
+                    } else if (item.textContent.includes(selectedOptionB)) {
+                        optionBScore = score[1];
+                    }
+                }
+            }
+        });
+
+        const text = `🎯 Decision Analysis Results
+
+📊 Decision Type: ${decisionType}
+${winner ? `🏆 Recommended Choice: ${winner}` : '⚖️ Decision is too close to call'}
+
+📈 Final Scores:
+• ${selectedOptionA}: ${optionAScore} points
+• ${selectedOptionB}: ${optionBScore} points
+
+Made with Decision Helper 🧠✨`;
+
+        return { text };
     }
 });

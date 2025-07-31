@@ -438,6 +438,17 @@ h4 {
     font-weight: bold;
 }
 
+.results-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    justify-content: center;
+}
+
+.results-actions button {
+    margin-top: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -502,5 +513,15 @@ h4 {
     .secondary-btn {
         width: 100%;
         text-align: center;
+    }
+    
+    .results-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .results-actions button {
+        width: 100%;
+        max-width: 250px;
     }
 }
