@@ -28,6 +28,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function init() {
         updateChoices();
         setupEventListeners();
+        updateMetaTags();
+    }
+
+    function updateMetaTags() {
+        // Set the current URL for Open Graph
+        const ogUrl = document.querySelector('meta[property="og:url"]');
+        if (ogUrl) {
+            ogUrl.setAttribute('content', window.location.href);
+        }
+        
+        // You can set this to your actual image URL when you have one
+        // For now, we'll leave it empty and platforms will use a default
+        const ogImage = document.querySelector('meta[property="og:image"]');
+        const twitterImage = document.querySelector('meta[name="twitter:image"]');
+        
+        // If you host the preview image somewhere, update these:
+        // if (ogImage) ogImage.setAttribute('content', 'https://your-domain.com/preview-card.png');
+        // if (twitterImage) twitterImage.setAttribute('content', 'https://your-domain.com/preview-card.png');
     }
 
     function setupEventListeners() {
