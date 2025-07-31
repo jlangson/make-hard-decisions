@@ -76,34 +76,160 @@
             <button id="proceed-to-scoring" class="primary-btn">Proceed to Scoring</button>
         </section>
 
-        <!-- Step 4: Numerical Comparison -->
+        <!-- Step 4: Comparative Scoring -->
         <section id="scoring-section" class="section hidden">
-            <h2>Step 4: Rate Each Category</h2>
-            <p>Rate each category from 0-10 (0 = no benefit, 10 = maximum benefit):</p>
+            <h2>Step 4: Comparative Scoring</h2>
+            <p>For each comparison, allocate 100 points between the two options. Higher points = more important/desirable.</p>
             
-            <div class="scoring-grid">
-                <div class="scoring-item">
-                    <label>Advantages of <span id="score-option-a-1">Option A</span>:</label>
-                    <input type="range" id="advantages-a-score" min="0" max="10" value="5">
-                    <span class="score-display">5</span>
-                </div>
+            <!-- Step 4.1: Option A Internal Comparison -->
+            <div class="comparison-step">
+                <h3>Step 1: Compare within <span id="internal-option-a">Option A</span></h3>
+                <p>Focus only on Option A. Compare its advantages vs disadvantages. Allocate 100 points total.</p>
                 
-                <div class="scoring-item">
-                    <label>Disadvantages of <span id="score-option-a-2">Option A</span> (impact):</label>
-                    <input type="range" id="disadvantages-a-score" min="0" max="10" value="5">
-                    <span class="score-display">5</span>
+                <div class="step-with-reference">
+                    <div class="comparison-section">
+                        <div class="comparison-pair">
+                            <div class="comparison-input">
+                                <label>Advantages of <span id="adv-a-label-1">Option A</span></label>
+                                <input type="number" id="circle-1" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="comparison-input">
+                                <label>Disadvantages of <span id="dis-a-label-1">Option A</span></label>
+                                <input type="number" id="circle-2" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                        </div>
+                        <div class="total-display">Total: <span id="total-1-2">100</span>/100</div>
+                    </div>
+                    
+                    <div class="step-reference">
+                        <div class="step-reference-grid">
+                            <div class="step-reference-item">
+                                <h5>Advantages of <span id="step1-adv-title">Option A</span>:</h5>
+                                <div id="step1-advantages" class="step-reference-content"></div>
+                            </div>
+                            <div class="step-reference-item">
+                                <h5>Disadvantages of <span id="step1-dis-title">Option A</span>:</h5>
+                                <div id="step1-disadvantages" class="step-reference-content"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Step 4.2: Option B Internal Comparison -->
+            <div class="comparison-step">
+                <h3>Step 2: Compare within <span id="internal-option-b">Option B</span></h3>
+                <p>Focus only on Option B. Compare its advantages vs disadvantages. Allocate 100 points total.</p>
                 
-                <div class="scoring-item">
-                    <label>Advantages of <span id="score-option-b-1">Option B</span>:</label>
-                    <input type="range" id="advantages-b-score" min="0" max="10" value="5">
-                    <span class="score-display">5</span>
+                <div class="step-with-reference">
+                    <div class="comparison-section">
+                        <div class="comparison-pair">
+                            <div class="comparison-input">
+                                <label>Advantages of <span id="adv-b-label-1">Option B</span></label>
+                                <input type="number" id="circle-3" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="comparison-input">
+                                <label>Disadvantages of <span id="dis-b-label-1">Option B</span></label>
+                                <input type="number" id="circle-4" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                        </div>
+                        <div class="total-display">Total: <span id="total-3-4">100</span>/100</div>
+                    </div>
+                    
+                    <div class="step-reference">
+                        <div class="step-reference-grid">
+                            <div class="step-reference-item">
+                                <h5>Advantages of <span id="step2-adv-title">Option B</span>:</h5>
+                                <div id="step2-advantages" class="step-reference-content"></div>
+                            </div>
+                            <div class="step-reference-item">
+                                <h5>Disadvantages of <span id="step2-dis-title">Option B</span>:</h5>
+                                <div id="step2-disadvantages" class="step-reference-content"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Step 4.3: Advantages Comparison -->
+            <div class="comparison-step">
+                <h3>Step 3: Compare Advantages</h3>
+                <p>Focus only on advantages. Which option has more desirable advantages? Allocate 100 points total.</p>
                 
-                <div class="scoring-item">
-                    <label>Disadvantages of <span id="score-option-b-2">Option B</span> (impact):</label>
-                    <input type="range" id="disadvantages-b-score" min="0" max="10" value="5">
-                    <span class="score-display">5</span>
+                <div class="step-with-reference">
+                    <div class="comparison-section">
+                        <div class="comparison-pair">
+                            <div class="comparison-input">
+                                <label>Advantages of <span id="adv-a-label-2">Option A</span></label>
+                                <input type="number" id="circle-5" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="comparison-input">
+                                <label>Advantages of <span id="adv-b-label-2">Option B</span></label>
+                                <input type="number" id="circle-6" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                        </div>
+                        <div class="total-display">Total: <span id="total-5-6">100</span>/100</div>
+                    </div>
+                    
+                    <div class="step-reference">
+                        <div class="step-reference-grid">
+                            <div class="step-reference-item">
+                                <h5>Advantages of <span id="step3-adv-a-title">Option A</span>:</h5>
+                                <div id="step3-advantages-a" class="step-reference-content"></div>
+                            </div>
+                            <div class="step-reference-item">
+                                <h5>Advantages of <span id="step3-adv-b-title">Option B</span>:</h5>
+                                <div id="step3-advantages-b" class="step-reference-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4.4: Disadvantages Comparison -->
+            <div class="comparison-step">
+                <h3>Step 4: Compare Disadvantages</h3>
+                <p>Focus only on disadvantages. Which option has worse disadvantages? Allocate 100 points total.</p>
+                
+                <div class="step-with-reference">
+                    <div class="comparison-section">
+                        <div class="comparison-pair">
+                            <div class="comparison-input">
+                                <label>Disadvantages of <span id="dis-a-label-2">Option A</span></label>
+                                <input type="number" id="circle-7" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="comparison-input">
+                                <label>Disadvantages of <span id="dis-b-label-2">Option B</span></label>
+                                <input type="number" id="circle-8" class="comparison-number" min="0" max="100" value="50">
+                                <span class="points-label">points</span>
+                            </div>
+                        </div>
+                        <div class="total-display">Total: <span id="total-7-8">100</span>/100</div>
+                    </div>
+                    
+                    <div class="step-reference">
+                        <div class="step-reference-grid">
+                            <div class="step-reference-item">
+                                <h5>Disadvantages of <span id="step4-dis-a-title">Option A</span>:</h5>
+                                <div id="step4-disadvantages-a" class="step-reference-content"></div>
+                            </div>
+                            <div class="step-reference-item">
+                                <h5>Disadvantages of <span id="step4-dis-b-title">Option B</span>:</h5>
+                                <div id="step4-disadvantages-b" class="step-reference-content"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
