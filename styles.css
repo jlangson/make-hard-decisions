@@ -1,0 +1,387 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+h1 {
+    text-align: center;
+    padding: 40px 20px 10px;
+    color: #4a5568;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    text-align: center;
+    color: #718096;
+    margin-bottom: 40px;
+    font-size: 1.1rem;
+}
+
+.section {
+    padding: 30px 40px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.hidden {
+    display: none;
+}
+
+h2 {
+    color: #2d3748;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+h3 {
+    color: #4a5568;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+    text-align: center;
+}
+
+h4 {
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Brainstorming Section */
+#choices-container {
+    margin-bottom: 20px;
+}
+
+.choice-input {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+}
+
+.choice {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.choice:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.remove-choice {
+    background: #e53e3e;
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.remove-choice:hover {
+    background: #c53030;
+}
+
+#add-choice {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-right: 15px;
+    transition: background-color 0.3s ease;
+}
+
+#add-choice:hover {
+    background: #38a169;
+}
+
+/* Buttons */
+.primary-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.primary-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.secondary-btn {
+    background: #718096;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.secondary-btn:hover {
+    background: #4a5568;
+}
+
+/* Selection Section */
+.option-selectors {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.selector-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.selector-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.selector-group select {
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.selector-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Comparison Section */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.comparison-column {
+    background: #f7fafc;
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+}
+
+.pros-cons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pros-cons-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.pros-cons-box textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.pros-cons-box textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Scoring Section */
+.scoring-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.scoring-item {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+}
+
+.scoring-item label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.scoring-item input[type="range"] {
+    width: 100%;
+    margin-bottom: 10px;
+    -webkit-appearance: none;
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    outline: none;
+}
+
+.scoring-item input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.scoring-item input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.score-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #667eea;
+    float: right;
+}
+
+/* Results Section */
+#results-content {
+    background: #f0fff4;
+    padding: 25px;
+    border-radius: 10px;
+    border: 2px solid #9ae6b4;
+    margin-bottom: 20px;
+}
+
+.result-item {
+    margin-bottom: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #48bb78;
+}
+
+.winner {
+    background: #f0fff4;
+    border-left-color: #38a169;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+    
+    .section {
+        padding: 20px 25px;
+    }
+    
+    h1 {
+        font-size: 2rem;
+        padding: 30px 20px 10px;
+    }
+    
+    .option-selectors,
+    .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .choice-input {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .remove-choice {
+        align-self: flex-end;
+        margin-top: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .section {
+        padding: 15px 20px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Helper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Decision Helper</h1>
+        <p class="subtitle">Make difficult decisions with confidence</p>
+
+        <!-- Step 1: Brainstorming -->
+        <section id="brainstorm-section" class="section">
+            <h2>Step 1: Brainstorm Your Options</h2>
+            <p>List all the choices you're considering:</p>
+            <div id="choices-container">
+                <div class="choice-input">
+                    <input type="text" class="choice" placeholder="Enter an option...">
+                    <button class="remove-choice">×</button>
+                </div>
+            </div>
+            <button id="add-choice">+ Add Another Option</button>
+            <button id="proceed-to-comparison" class="primary-btn">Proceed to Comparison</button>
+        </section>
+
+        <!-- Step 2: Select Two Options -->
+        <section id="selection-section" class="section hidden">
+            <h2>Step 2: Select Two Options to Compare</h2>
+            <div class="option-selectors">
+                <div class="selector-group">
+                    <label for="option-a">Option A:</label>
+                    <select id="option-a"></select>
+                </div>
+                <div class="selector-group">
+                    <label for="option-b">Option B:</label>
+                    <select id="option-b"></select>
+                </div>
+            </div>
+            <button id="start-comparison" class="primary-btn">Start Comparison</button>
+        </section>
+
+        <!-- Step 3: Pros and Cons -->
+        <section id="comparison-section" class="section hidden">
+            <h2>Step 3: Compare Your Options</h2>
+            <div class="comparison-grid">
+                <div class="comparison-column">
+                    <h3 id="option-a-title">Option A</h3>
+                    <div class="pros-cons-container">
+                        <div class="pros-cons-box">
+                            <h4>Advantages</h4>
+                            <textarea id="advantages-a" placeholder="List the advantages of this option..."></textarea>
+                        </div>
+                        <div class="pros-cons-box">
+                            <h4>Disadvantages</h4>
+                            <textarea id="disadvantages-a" placeholder="List the disadvantages of this option..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comparison-column">
+                    <h3 id="option-b-title">Option B</h3>
+                    <div class="pros-cons-container">
+                        <div class="pros-cons-box">
+                            <h4>Advantages</h4>
+                            <textarea id="advantages-b" placeholder="List the advantages of this option..."></textarea>
+                        </div>
+                        <div class="pros-cons-box">
+                            <h4>Disadvantages</h4>
+                            <textarea id="disadvantages-b" placeholder="List the disadvantages of this option..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="proceed-to-scoring" class="primary-btn">Proceed to Scoring</button>
+        </section>
+
+        <!-- Step 4: Numerical Comparison -->
+        <section id="scoring-section" class="section hidden">
+            <h2>Step 4: Rate Each Category</h2>
+            <p>Rate each category from 1-10 (10 being the strongest):</p>
+            
+            <div class="scoring-grid">
+                <div class="scoring-item">
+                    <label>Advantages of <span id="score-option-a-1">Option A</span>:</label>
+                    <input type="range" id="advantages-a-score" min="1" max="10" value="5">
+                    <span class="score-display">5</span>
+                </div>
+                
+                <div class="scoring-item">
+                    <label>Disadvantages of <span id="score-option-a-2">Option A</span> (impact):</label>
+                    <input type="range" id="disadvantages-a-score" min="1" max="10" value="5">
+                    <span class="score-display">5</span>
+                </div>
+                
+                <div class="scoring-item">
+                    <label>Advantages of <span id="score-option-b-1">Option B</span>:</label>
+                    <input type="range" id="advantages-b-score" min="1" max="10" value="5">
+                    <span class="score-display">5</span>
+                </div>
+                
+                <div class="scoring-item">
+                    <label>Disadvantages of <span id="score-option-b-2">Option B</span> (impact):</label>
+                    <input type="range" id="disadvantages-b-score" min="1" max="10" value="5">
+                    <span class="score-display">5</span>
+                </div>
+            </div>
+            
+            <button id="calculate-result" class="primary-btn">Calculate Result</button>
+        </section>
+
+        <!-- Results -->
+        <section id="results-section" class="section hidden">
+            <h2>Decision Analysis Results</h2>
+            <div id="results-content"></div>
+            <button id="start-over" class="secondary-btn">Start Over</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
