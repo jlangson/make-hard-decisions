@@ -389,15 +389,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if ((optionAScore > 50 && optionBScore < -50) || (optionBScore > 50 && optionAScore < -50)) {
             decisionType = 'No Brainer';
             decisionColor = '#48bb78';
+        } else if (Math.abs(optionAScore - optionBScore) <= 20) {
+            decisionType = 'Fence Sitter';
+            decisionColor = '#9f7aea';
         } else if (optionAScore > 0 && optionBScore > 0) {
             decisionType = "Can't Lose";
             decisionColor = '#38b2ac';
         } else if (optionAScore < 0 && optionBScore < 0) {
             decisionType = "Can't Win";
             decisionColor = '#ed8936';
-        } else if (Math.abs(optionAScore - optionBScore) <= 20) {
-            decisionType = 'Fence Sitter';
-            decisionColor = '#9f7aea';
         } else {
             decisionType = 'Clear Choice';
             decisionColor = '#667eea';

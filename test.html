@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Helper - Unit Tests</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f7fafc;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-passed {
+            border-left: 4px solid #48bb78;
+        }
+        
+        .test-failed {
+            border-left: 4px solid #e53e3e;
+        }
+        
+        .test-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .test-passed .test-title {
+            color: #38a169;
+        }
+        
+        .test-failed .test-title {
+            color: #c53030;
+        }
+        
+        .test-details {
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-top: 8px;
+        }
+        
+        .summary {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Decision Helper - Unit Tests</h1>
+    <div id="test-summary" class="summary">Running tests...</div>
+    <div id="test-results"></div>
+
+    <!-- Mock DOM elements needed for tests -->
+    <div style="display: none;">
+        <input id="circle-1" value="60">
+        <input id="circle-2" value="40">
+        <input id="circle-3" value="70">
+        <input id="circle-4" value="30">
+        <input id="circle-5" value="45">
+        <input id="circle-6" value="55">
+        <input id="circle-7" value="35">
+        <input id="circle-8" value="65">
+        <span id="total-1-2">100</span>
+        <span id="total-3-4">100</span>
+        <span id="total-5-6">100</span>
+        <span id="total-7-8">100</span>
+    </div>
+
+    <script>
+        // Test framework
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.passed = 0;
+                this.failed = 0;
+            }
+
+            test(name, testFunction) {
+                this.tests.push({ name, testFunction });
+            }
+
+            run() {
+                const resultsDiv = document.getElementById('test-results');
+                const summaryDiv = document.getElementById('test-summary');
+                
+                this.tests.forEach(({ name, testFunction }) => {
+                    try {
+                        testFunction();
+                        this.renderTest(resultsDiv, name, true);
+                        this.passed++;
+                    } catch (error) {
+                        this.renderTest(resultsDiv, name, false, error.message);
+                        this.failed++;
+                    }
+                });
+
+                summaryDiv.innerHTML = `Tests: ${this.tests.length} | Passed: ${this.passed} | Failed: ${this.failed}`;
+                summaryDiv.style.backgroundColor = this.failed === 0 ? '#48bb78' : '#e53e3e';
+            }
+
+            renderTest(container, name, passed, error = null) {
+                const testDiv = document.createElement('div');
+                testDiv.className = `test-container ${passed ? 'test-passed' : 'test-failed'}`;
+                
+                const title = document.createElement('div');
+                title.className = 'test-title';
+                title.textContent = `${passed ? '✓' : '✗'} ${name}`;
+                testDiv.appendChild(title);
+
+                if (error) {
+                    const details = document.createElement('div');
+                    details.className = 'test-details';
+                    details.textContent = `Error: ${error}`;
+                    testDiv.appendChild(details);
+                }
+
+                container.appendChild(testDiv);
+            }
+        }
+
+        function assert(condition, message) {
+            if (!condition) {
+                throw new Error(message || 'Assertion failed');
+            }
+        }
+
+        function assertEqual(actual, expected, message) {
+            if (actual !== expected) {
+                throw new Error(message || `Expected ${expected}, got ${actual}`);
+            }
+        }
+
+        // Simplified versions of functions under test
+        function updateTotalDisplay(totalDisplay, value1, value2) {
+            const total = value1 + value2;
+            totalDisplay.textContent = total;
+            
+            if (total !== 100) {
+                totalDisplay.classList.add('invalid');
+            } else {
+                totalDisplay.classList.remove('invalid');
+            }
+            
+            return total;
+        }
+
+        function handleBalancedInput(changedInput, otherInput) {
+            const changedValue = parseInt(changedInput.value) || 0;
+            let otherValue = 100 - changedValue;
+            
+            if (changedValue < 0) {
+                changedInput.value = 0;
+                otherInput.value = 100;
+                return { changed: 0, other: 100 };
+            } else if (changedValue > 100) {
+                changedInput.value = 100;
+                otherInput.value = 0;
+                return { changed: 100, other: 0 };
+            } else {
+                otherInput.value = otherValue;
+                return { changed: changedValue, other: otherValue };
+            }
+        }
+
+        function calculateScores(circles) {
+            const { circle1, circle2, circle3, circle4, circle5, circle6, circle7, circle8 } = circles;
+            
+            // Validate that all pairs total 100
+            const totals = [
+                circle1 + circle2,
+                circle3 + circle4,
+                circle5 + circle6,
+                circle7 + circle8
+            ];
+
+            const allValid = totals.every(total => total === 100);
+            if (!allValid) {
+                throw new Error('All comparisons must total exactly 100 points');
+            }
+
+            // Calculate final scores using PDF methodology
+            const circle9 = circle1 + circle5;  // Total advantages for A
+            const circle10 = circle2 + circle7; // Total disadvantages for A
+            const circle11 = circle3 + circle6; // Total advantages for B
+            const circle12 = circle4 + circle8; // Total disadvantages for B
+
+            const optionAScore = circle9 - circle10;
+            const optionBScore = circle11 - circle12;
+
+            return {
+                optionAScore,
+                optionBScore,
+                circle9,
+                circle10,
+                circle11,
+                circle12
+            };
+        }
+
+        function classifyDecision(optionAScore, optionBScore) {
+            // Check for "No Brainer" first (extreme cases)
+            if ((optionAScore > 50 && optionBScore < -50) || (optionBScore > 50 && optionAScore < -50)) {
+                return 'No Brainer';
+            }
+            
+            // Check for "Fence Sitter" (close scores) before other categories
+            if (Math.abs(optionAScore - optionBScore) <= 20) {
+                return 'Fence Sitter';
+            }
+            
+            // Check for "Can't Lose" and "Can't Win"
+            if (optionAScore > 0 && optionBScore > 0) {
+                return "Can't Lose";
+            } else if (optionAScore < 0 && optionBScore < 0) {
+                return "Can't Win";
+            } else {
+                return 'Clear Choice';
+            }
+        }
+
+        // Run tests
+        const runner = new TestRunner();
+
+        // Test balanced input functionality
+        runner.test('Balanced input - normal case', () => {
+            const input1 = { value: '60' };
+            const input2 = { value: '40' };
+            const result = handleBalancedInput(input1, input2);
+            assertEqual(result.changed, 60);
+            assertEqual(result.other, 40);
+            assertEqual(input2.value, 40);
+        });
+
+        runner.test('Balanced input - boundary case (0)', () => {
+            const input1 = { value: '0' };
+            const input2 = { value: '50' };
+            const result = handleBalancedInput(input1, input2);
+            assertEqual(result.changed, 0);
+            assertEqual(result.other, 100);
+            assertEqual(input2.value, 100);
+        });
+
+        runner.test('Balanced input - boundary case (100)', () => {
+            const input1 = { value: '100' };
+            const input2 = { value: '50' };
+            const result = handleBalancedInput(input1, input2);
+            assertEqual(result.changed, 100);
+            assertEqual(result.other, 0);
+            assertEqual(input2.value, 0);
+        });
+
+        runner.test('Balanced input - invalid negative', () => {
+            const input1 = { value: '-10' };
+            const input2 = { value: '50' };
+            const result = handleBalancedInput(input1, input2);
+            assertEqual(result.changed, 0);
+            assertEqual(result.other, 100);
+            assertEqual(input1.value, 0);
+            assertEqual(input2.value, 100);
+        });
+
+        runner.test('Balanced input - invalid over 100', () => {
+            const input1 = { value: '150' };
+            const input2 = { value: '50' };
+            const result = handleBalancedInput(input1, input2);
+            assertEqual(result.changed, 100);
+            assertEqual(result.other, 0);
+            assertEqual(input1.value, 100);
+            assertEqual(input2.value, 0);
+        });
+
+        // Test total display functionality
+        runner.test('Total display - valid total (100)', () => {
+            const totalDisplay = document.createElement('span');
+            const total = updateTotalDisplay(totalDisplay, 60, 40);
+            assertEqual(total, 100);
+            assertEqual(totalDisplay.textContent, '100');
+            assert(!totalDisplay.classList.contains('invalid'));
+        });
+
+        runner.test('Total display - invalid total (not 100)', () => {
+            const totalDisplay = document.createElement('span');
+            const total = updateTotalDisplay(totalDisplay, 60, 50);
+            assertEqual(total, 110);
+            assertEqual(totalDisplay.textContent, '110');
+            assert(totalDisplay.classList.contains('invalid'));
+        });
+
+        // Test calculation functionality
+        runner.test('Calculate scores - valid input', () => {
+            const circles = {
+                circle1: 60, circle2: 40,  // A internal: 60 adv, 40 dis
+                circle3: 70, circle4: 30,  // B internal: 70 adv, 30 dis
+                circle5: 45, circle6: 55,  // A vs B advantages: 45 vs 55
+                circle7: 35, circle8: 65   // A vs B disadvantages: 35 vs 65
+            };
+            
+            const result = calculateScores(circles);
+            
+            // Option A: (60 + 45) - (40 + 35) = 105 - 75 = 30
+            assertEqual(result.optionAScore, 30);
+            // Option B: (70 + 55) - (30 + 65) = 125 - 95 = 30
+            assertEqual(result.optionBScore, 30);
+            assertEqual(result.circle9, 105);  // A advantages total
+            assertEqual(result.circle10, 75);  // A disadvantages total
+            assertEqual(result.circle11, 125); // B advantages total
+            assertEqual(result.circle12, 95);  // B disadvantages total
+        });
+
+        runner.test('Calculate scores - invalid totals', () => {
+            const circles = {
+                circle1: 60, circle2: 50,  // Invalid: totals 110
+                circle3: 70, circle4: 30,
+                circle5: 45, circle6: 55,
+                circle7: 35, circle8: 65
+            };
+            
+            let errorThrown = false;
+            try {
+                calculateScores(circles);
+            } catch (error) {
+                errorThrown = true;
+                assert(error.message.includes('100 points'));
+            }
+            assert(errorThrown, 'Should throw error for invalid totals');
+        });
+
+        // Test decision classification
+        runner.test('Decision classification - No Brainer (A positive, B negative)', () => {
+            const classification = classifyDecision(80, -60);
+            assertEqual(classification, 'No Brainer');
+        });
+
+        runner.test('Decision classification - No Brainer (B positive, A negative)', () => {
+            const classification = classifyDecision(-60, 80);
+            assertEqual(classification, 'No Brainer');
+        });
+
+        runner.test('Decision classification - Can\'t Lose (both positive)', () => {
+            const classification = classifyDecision(50, 25);  // Changed: difference is 25, > 20 and both positive
+            assertEqual(classification, "Can't Lose");
+        });
+
+        runner.test('Decision classification - Can\'t Win (both negative)', () => {
+            const classification = classifyDecision(-50, -25);  // Changed: difference is 25, > 20 and both negative
+            assertEqual(classification, "Can't Win");
+        });
+
+        runner.test('Decision classification - Fence Sitter (close scores)', () => {
+            const classification = classifyDecision(15, 10);  // difference is 5, within 20
+            assertEqual(classification, 'Fence Sitter');
+        });
+
+        runner.test('Decision classification - Clear Choice', () => {
+            const classification = classifyDecision(30, -10);  // Changed: one positive, one negative, difference > 20
+            assertEqual(classification, 'Clear Choice');
+        });
+
+        // Test score range validation
+        runner.test('Score range - maximum possible', () => {
+            const circles = {
+                circle1: 100, circle2: 0,   // A: 100 adv, 0 dis
+                circle3: 0, circle4: 100,   // B: 0 adv, 100 dis
+                circle5: 100, circle6: 0,   // A vs B adv: 100 vs 0
+                circle7: 0, circle8: 100    // A vs B dis: 0 vs 100
+            };
+            
+            const result = calculateScores(circles);
+            // A: (100 + 100) - (0 + 0) = 200
+            // B: (0 + 0) - (100 + 100) = -200
+            assertEqual(result.optionAScore, 200);
+            assertEqual(result.optionBScore, -200);
+        });
+
+        runner.test('Score range - minimum possible', () => {
+            const circles = {
+                circle1: 0, circle2: 100,   // A: 0 adv, 100 dis
+                circle3: 100, circle4: 0,   // B: 100 adv, 0 dis
+                circle5: 0, circle6: 100,   // A vs B adv: 0 vs 100
+                circle7: 100, circle8: 0    // A vs B dis: 100 vs 0
+            };
+            
+            const result = calculateScores(circles);
+            // A: (0 + 0) - (100 + 100) = -200
+            // B: (100 + 100) - (0 + 0) = 200
+            assertEqual(result.optionAScore, -200);
+            assertEqual(result.optionBScore, 200);
+        });
+
+        // Run all tests
+        runner.run();
+    </script>
+</body>
+</html>
