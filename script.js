@@ -245,110 +245,81 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('step4-disadvantages-a').textContent = disadvantagesA || 'No disadvantages listed';
         document.getElementById('step4-disadvantages-b').textContent = disadvantagesB || 'No disadvantages listed';
 
-        // Reset all comparison inputs to 50/50
-        const comparisonInputs = document.querySelectorAll('.comparison-number');
-        comparisonInputs.forEach(input => {
-            input.value = 50;
+        // Reset all sliders to 50/50
+        const sliders = document.querySelectorAll('.comparison-slider');
+        sliders.forEach(slider => {
+            slider.value = 50;
         });
 
-        // Update all totals
-        updateTotalDisplays();
+        // Initialize sliders and set up listeners
+        initializeSliders();
         setupComparisonInputListeners();
 
         showSection(scoringSection);
     }
 
-    // Auto-balancing input functionality
+    // Slider functionality
     function setupComparisonInputListeners() {
-        // Set up listeners for each pair of inputs
-        const pairs = [
-            ['circle-1', 'circle-2', 'total-1-2'],
-            ['circle-3', 'circle-4', 'total-3-4'],
-            ['circle-5', 'circle-6', 'total-5-6'],
-            ['circle-7', 'circle-8', 'total-7-8']
+        // Set up listeners for each slider
+        const sliders = [
+            ['slider-1-2', 'value-1', 'value-2'],
+            ['slider-3-4', 'value-3', 'value-4'],
+            ['slider-5-6', 'value-5', 'value-6'],
+            ['slider-7-8', 'value-7', 'value-8']
         ];
 
-        pairs.forEach(([input1Id, input2Id, totalId]) => {
-            const input1 = document.getElementById(input1Id);
-            const input2 = document.getElementById(input2Id);
-            const totalDisplay = document.getElementById(totalId);
+        sliders.forEach(([sliderId, leftValueId, rightValueId]) => {
+            const slider = document.getElementById(sliderId);
+            const leftValue = document.getElementById(leftValueId);
+            const rightValue = document.getElementById(rightValueId);
 
-            input1.addEventListener('input', () => handleBalancedInput(input1, input2, totalDisplay));
-            input2.addEventListener('input', () => handleBalancedInput(input2, input1, totalDisplay));
+            if (slider && leftValue && rightValue) {
+                slider.addEventListener('input', () => handleSliderChange(slider, leftValue, rightValue));
+                // Update gradient background on change
+                slider.addEventListener('input', () => updateSliderBackground(slider));
+            }
         });
     }
 
-    function handleBalancedInput(changedInput, otherInput, totalDisplay) {
-        const changedValue = parseInt(changedInput.value) || 0;
-        const otherValue = 100 - changedValue;
+    function handleSliderChange(slider, leftValue, rightValue) {
+        const sliderValue = parseInt(slider.value);
+        const leftPoints = sliderValue;
+        const rightPoints = 100 - sliderValue;
         
-        // Ensure values are within bounds
-        if (changedValue < 0) {
-            changedInput.value = 0;
-            otherInput.value = 100;
-        } else if (changedValue > 100) {
-            changedInput.value = 100;
-            otherInput.value = 0;
-        } else {
-            otherInput.value = otherValue;
-        }
-
-        updateTotalDisplay(totalDisplay, parseInt(changedInput.value), parseInt(otherInput.value));
+        leftValue.textContent = leftPoints;
+        rightValue.textContent = rightPoints;
     }
 
-    function updateTotalDisplay(totalDisplay, value1, value2) {
-        const total = value1 + value2;
-        totalDisplay.textContent = total;
-        
-        // Add visual feedback for invalid totals
-        if (total !== 100) {
-            totalDisplay.classList.add('invalid');
-        } else {
-            totalDisplay.classList.remove('invalid');
-        }
+    function updateSliderBackground(slider) {
+        const value = slider.value;
+        const percentage = value;
+        slider.style.background = `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${percentage}%, #2196f3 ${percentage}%, #2196f3 100%)`;
     }
 
-    function updateTotalDisplays() {
-        const pairs = [
-            ['circle-1', 'circle-2', 'total-1-2'],
-            ['circle-3', 'circle-4', 'total-3-4'],
-            ['circle-5', 'circle-6', 'total-5-6'],
-            ['circle-7', 'circle-8', 'total-7-8']
-        ];
-
-        pairs.forEach(([input1Id, input2Id, totalId]) => {
-            const input1 = document.getElementById(input1Id);
-            const input2 = document.getElementById(input2Id);
-            const totalDisplay = document.getElementById(totalId);
-            
-            updateTotalDisplay(totalDisplay, parseInt(input1.value), parseInt(input2.value));
+    function initializeSliders() {
+        // Initialize all sliders with proper backgrounds
+        const sliders = document.querySelectorAll('.comparison-slider');
+        sliders.forEach(slider => {
+            updateSliderBackground(slider);
         });
     }
 
     function calculateResult() {
-        // Get all circle values
-        const circle1 = parseInt(document.getElementById('circle-1').value) || 0; // Advantages A internal
-        const circle2 = parseInt(document.getElementById('circle-2').value) || 0; // Disadvantages A internal
-        const circle3 = parseInt(document.getElementById('circle-3').value) || 0; // Advantages B internal
-        const circle4 = parseInt(document.getElementById('circle-4').value) || 0; // Disadvantages B internal
-        const circle5 = parseInt(document.getElementById('circle-5').value) || 0; // Advantages A vs B
-        const circle6 = parseInt(document.getElementById('circle-6').value) || 0; // Advantages B vs A
-        const circle7 = parseInt(document.getElementById('circle-7').value) || 0; // Disadvantages A vs B
-        const circle8 = parseInt(document.getElementById('circle-8').value) || 0; // Disadvantages B vs A
+        // Get values from sliders
+        const slider12 = parseInt(document.getElementById('slider-1-2').value) || 50;
+        const slider34 = parseInt(document.getElementById('slider-3-4').value) || 50;
+        const slider56 = parseInt(document.getElementById('slider-5-6').value) || 50;
+        const slider78 = parseInt(document.getElementById('slider-7-8').value) || 50;
 
-        // Validate that all pairs total 100
-        const totals = [
-            circle1 + circle2,
-            circle3 + circle4,
-            circle5 + circle6,
-            circle7 + circle8
-        ];
-
-        const allValid = totals.every(total => total === 100);
-        if (!allValid) {
-            alert('Please ensure all comparisons total exactly 100 points before calculating results.');
-            return;
-        }
+        // Convert slider values to circle values
+        const circle1 = slider12;        // Advantages A internal
+        const circle2 = 100 - slider12;  // Disadvantages A internal
+        const circle3 = slider34;        // Advantages B internal
+        const circle4 = 100 - slider34;  // Disadvantages B internal
+        const circle5 = slider56;        // Advantages A vs B
+        const circle6 = 100 - slider56;  // Advantages B vs A
+        const circle7 = slider78;        // Disadvantages A vs B
+        const circle8 = 100 - slider78;  // Disadvantages B vs A
 
         // Calculate final scores using PDF methodology
         // Option A: (circle1 + circle5) - (circle2 + circle7)
