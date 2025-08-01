@@ -654,27 +654,34 @@ Made with Decision Helper 🧠✨`;
     // Dev Mode Functions
     function checkDevModeHash() {
         const hash = window.location.hash.substring(1); // Remove the #
+        console.log('Full URL:', window.location.href);
+        console.log('Hash part:', window.location.hash);
         console.log('Dev mode hash detected:', hash); // Debug log
+        
+        if (!hash) {
+            console.log('No hash found in URL');
+            return;
+        }
         
         switch(hash) {
             case 'selection':
                 console.log('Setting up selection mock data');
-                setTimeout(setupMockDataForSelection, 100);
+                setTimeout(setupMockDataForSelection, 200);
                 break;
             case 'comparison':
                 console.log('Setting up comparison mock data');
-                setTimeout(setupMockDataForComparison, 100);
+                setTimeout(setupMockDataForComparison, 200);
                 break;
             case 'scoring':
                 console.log('Setting up scoring mock data');
-                setTimeout(setupMockDataForScoring, 100);
+                setTimeout(setupMockDataForScoring, 200);
                 break;
             case 'results':
                 console.log('Setting up results mock data');
-                setTimeout(setupMockDataForResults, 100);
+                setTimeout(setupMockDataForResults, 200);
                 break;
             default:
-                console.log('No dev mode hash found, proceeding normally');
+                console.log('Unknown dev mode hash:', hash);
                 break;
         }
     }
