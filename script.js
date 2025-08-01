@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function proceedToComparison() {
         if (choices.length < 2) {
             alert('Please enter at least 2 options to compare.');
+            announceToScreenReader('Error: Please enter at least 2 options to compare.', 'assertive');
             return;
         }
 
@@ -197,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('advantages-b').value = '';
             document.getElementById('disadvantages-b').value = '';
             
+            announceToScreenReader(`Now comparing ${selectedOptionA} versus ${selectedOptionB}`);
+            
             saveData(true);
             showSection(comparisonSection);
             return;
@@ -204,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // For 3+ options, show selection step
         populateSelectors();
+        announceToScreenReader('Please select two options to compare from your list');
         showSection(selectionSection);
     }
 
@@ -369,6 +373,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         leftValue.textContent = leftPoints;
         rightValue.textContent = rightPoints;
+        
+        // Update accessibility attributes
+        updateAriaValueText(slider.id, leftPoints, rightPoints);
+        updateSpinButtonValues(leftValue.id, leftPoints);
+        updateSpinButtonValues(rightValue.id, rightPoints);
+        
         saveData();
     }
 
@@ -440,6 +450,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 disadvantagesB
             }
         });
+
+        // Announce results
+        const winner = optionAScore > optionBScore ? selectedOptionA : 
+                      optionBScore > optionAScore ? selectedOptionB : 'tie';
+        if (winner === 'tie') {
+            announceToScreenReader('Results calculated. The decision is too close to call.');
+        } else {
+            announceToScreenReader(`Results calculated. Recommended choice: ${winner}`);
+        }
 
         showSection(resultsSection);
     }
@@ -549,6 +568,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update navigation buttons
         updateNavigationButtons();
+        
+        // Announce section change to screen readers
+        const sectionHeading = targetSection.querySelector('h2');
+        if (sectionHeading && !skipHistory) {
+            announceToScreenReader(`Navigated to ${sectionHeading.textContent}`);
+        }
+        
+        // Focus management - focus on the main heading of the new section
+        if (sectionHeading) {
+            sectionHeading.focus();
+            sectionHeading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         
         // Scroll to top
         window.scrollTo(0, 0);
@@ -1282,6 +1313,36 @@ Made with Decision Helper 🧠✨`;
 
     function clearSavedData() {
         localStorage.removeItem('decisionHelperData');
+    }
+
+    // Screen reader announcements
+    function announceToScreenReader(message, priority = 'polite') {
+        const announcer = document.getElementById('sr-announcements');
+        if (announcer) {
+            announcer.setAttribute('aria-live', priority);
+            announcer.textContent = message;
+            
+            // Clear the message after a short delay to allow for new announcements
+            setTimeout(() => {
+                announcer.textContent = '';
+            }, 1000);
+        }
+    }
+
+    function updateAriaValueText(sliderId, leftValue, rightValue) {
+        const slider = document.getElementById(sliderId);
+        if (slider) {
+            const leftLabel = slider.parentElement.querySelector('.slider-label-left')?.textContent || 'Left option';
+            const rightLabel = slider.parentElement.querySelector('.slider-label-right')?.textContent || 'Right option';
+            slider.setAttribute('aria-valuetext', `${leftValue} points to ${leftLabel}, ${rightValue} points to ${rightLabel}`);
+        }
+    }
+
+    function updateSpinButtonValues(valueId, value) {
+        const element = document.getElementById(valueId);
+        if (element && element.hasAttribute('aria-valuenow')) {
+            element.setAttribute('aria-valuenow', value);
+        }
     }
 
     // Navigation History Functions

@@ -49,75 +49,111 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Skip Navigation for Screen Readers -->
+    <a href="#main-content" class="skip-nav" aria-label="Skip to main content">Skip to main content</a>
+    
     <!-- Universal Start Over Button -->
-    <button id="universal-start-over" class="universal-start-over" title="Start Over?">
+    <button id="universal-start-over" class="universal-start-over" 
+            aria-label="Start over and clear all progress" 
+            title="Start Over?">
         ↻
     </button>
 
     <!-- Navigation Controls -->
-    <div id="navigation-controls" class="navigation-controls">
-        <button id="nav-back-btn" class="nav-btn" title="Go Back (Alt+←)" disabled>
+    <nav id="navigation-controls" class="navigation-controls" aria-label="Step navigation">
+        <button id="nav-back-btn" class="nav-btn" 
+                aria-label="Go back to previous step" 
+                title="Go Back (Alt+←)" 
+                disabled>
             ←
         </button>
-        <button id="nav-forward-btn" class="nav-btn" title="Go Forward (Alt+→)" disabled>
+        <button id="nav-forward-btn" class="nav-btn" 
+                aria-label="Go forward to next step" 
+                title="Go Forward (Alt+→)" 
+                disabled>
             →
         </button>
-    </div>
+    </nav>
 
-    <div class="container">
-        <h1>Decision Helper</h1>
+    <!-- Live region for screen reader announcements -->
+    <div id="sr-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <main id="main-content" class="container">
+        <h1 tabindex="-1">Decision Helper</h1>
         <p class="subtitle">Make difficult decisions with confidence</p>
 
         <!-- Step 1: Brainstorming -->
-        <section id="brainstorm-section" class="section">
-            <h2>Step 1: Brainstorm Your Options</h2>
+        <section id="brainstorm-section" class="section" aria-labelledby="brainstorm-heading" role="region">
+            <h2 id="brainstorm-heading" tabindex="-1">Step 1: Brainstorm Your Options</h2>
             <p>List all the choices you're considering:</p>
-            <div id="choices-container">
+            <div id="choices-container" role="group" aria-label="Decision options">
                 <div class="choice-input">
-                    <input type="text" class="choice" placeholder="Enter first option...">
-                    <button class="remove-choice">×</button>
+                    <label for="choice-1" class="sr-only">First decision option</label>
+                    <input type="text" id="choice-1" class="choice" placeholder="Enter first option..." 
+                           aria-describedby="choices-help">
+                    <button class="remove-choice" aria-label="Remove first option">×</button>
                 </div>
                 <div class="choice-input">
-                    <input type="text" class="choice" placeholder="Enter second option...">
-                    <button class="remove-choice">×</button>
+                    <label for="choice-2" class="sr-only">Second decision option</label>
+                    <input type="text" id="choice-2" class="choice" placeholder="Enter second option..." 
+                           aria-describedby="choices-help">
+                    <button class="remove-choice" aria-label="Remove second option">×</button>
                 </div>
             </div>
+            <div id="choices-help" class="sr-only">Enter options you're considering for your decision. You can add more options or remove existing ones.</div>
             <div class="brainstorm-actions">
-                <button id="add-choice">+ Add Another Option</button>
-                <button id="proceed-to-comparison" class="primary-btn">Proceed to Comparison</button>
+                <button id="add-choice" aria-label="Add another decision option">+ Add Another Option</button>
+                <button id="proceed-to-comparison" class="primary-btn" 
+                        aria-describedby="proceed-help">Proceed to Comparison</button>
             </div>
+            <div id="proceed-help" class="sr-only">Continue to the next step to compare your options. You need at least 2 options to proceed.</div>
         </section>
 
         <!-- Step 2: Select Two Options -->
-        <section id="selection-section" class="section hidden">
-            <h2>Step 2: Select Two Options to Compare</h2>
-            <div class="option-selectors">
+        <section id="selection-section" class="section hidden" aria-labelledby="selection-heading" role="region">
+            <h2 id="selection-heading" tabindex="-1">Step 2: Select Two Options to Compare</h2>
+            <div class="option-selectors" role="group" aria-labelledby="selection-heading">
                 <div class="selector-group">
                     <label for="option-a">Option A:</label>
-                    <select id="option-a"></select>
+                    <select id="option-a" aria-describedby="option-select-help"></select>
                 </div>
                 <div class="selector-group">
                     <label for="option-b">Option B:</label>
-                    <select id="option-b"></select>
+                    <select id="option-b" aria-describedby="option-select-help"></select>
                 </div>
             </div>
-            <button id="start-comparison" class="primary-btn">Start Comparison</button>
+            <div id="option-select-help" class="sr-only">Select two different options to compare. You cannot select the same option for both A and B.</div>
+            <button id="start-comparison" class="primary-btn" 
+                    aria-describedby="start-comparison-help">Start Comparison</button>
+            <div id="start-comparison-help" class="sr-only">Begin comparing the selected options by listing their advantages and disadvantages.</div>
         </section>
 
         <!-- Step 3: Pros and Cons -->
-        <section id="comparison-section" class="section hidden">
-            <h2>Step 3: Compare Your Options</h2>
+        <section id="comparison-section" class="section hidden" aria-labelledby="comparison-heading" role="region">
+            <h2 id="comparison-heading" tabindex="-1">Step 3: Compare Your Options</h2>
             <div class="comparison-grid">
                 <div class="comparison-column">
                     <h3 id="option-a-title">Option A</h3>
                     <div class="pros-cons-container">
                         <div class="pros-cons-box">
-                            <h4>Advantages</h4>
-                            <textarea id="advantages-a" placeholder="List the advantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
+                            <label for="advantages-a">
+                                <h4>Advantages</h4>
+                            </label>
+                            <textarea id="advantages-a" 
+                                    placeholder="List the advantages of this option..." 
+                                    autocomplete="off" spellcheck="true" inputmode="text"
+                                    aria-describedby="advantages-a-help"></textarea>
+                            <div id="advantages-a-help" class="sr-only">List the positive aspects and benefits of this option. Each advantage should be on a new line.</div>
                         </div>
                         <div class="pros-cons-box">
-                            <h4>Disadvantages</h4>
-                            <textarea id="disadvantages-a" placeholder="List the disadvantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
+                            <label for="disadvantages-a">
+                                <h4>Disadvantages</h4>
+                            </label>
+                            <textarea id="disadvantages-a" 
+                                    placeholder="List the disadvantages of this option..." 
+                                    autocomplete="off" spellcheck="true" inputmode="text"
+                                    aria-describedby="disadvantages-a-help"></textarea>
+                            <div id="disadvantages-a-help" class="sr-only">List the negative aspects and drawbacks of this option. Each disadvantage should be on a new line.</div>
                         </div>
                     </div>
                 </div>
@@ -126,22 +162,36 @@
                     <h3 id="option-b-title">Option B</h3>
                     <div class="pros-cons-container">
                         <div class="pros-cons-box">
-                            <h4>Advantages</h4>
-                            <textarea id="advantages-b" placeholder="List the advantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
+                            <label for="advantages-b">
+                                <h4>Advantages</h4>
+                            </label>
+                            <textarea id="advantages-b" 
+                                    placeholder="List the advantages of this option..." 
+                                    autocomplete="off" spellcheck="true" inputmode="text"
+                                    aria-describedby="advantages-b-help"></textarea>
+                            <div id="advantages-b-help" class="sr-only">List the positive aspects and benefits of this option. Each advantage should be on a new line.</div>
                         </div>
                         <div class="pros-cons-box">
-                            <h4>Disadvantages</h4>
-                            <textarea id="disadvantages-b" placeholder="List the disadvantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
+                            <label for="disadvantages-b">
+                                <h4>Disadvantages</h4>
+                            </label>
+                            <textarea id="disadvantages-b" 
+                                    placeholder="List the disadvantages of this option..." 
+                                    autocomplete="off" spellcheck="true" inputmode="text"
+                                    aria-describedby="disadvantages-b-help"></textarea>
+                            <div id="disadvantages-b-help" class="sr-only">List the negative aspects and drawbacks of this option. Each disadvantage should be on a new line.</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <button id="proceed-to-scoring" class="primary-btn">Proceed to Scoring</button>
+            <button id="proceed-to-scoring" class="primary-btn" 
+                    aria-describedby="proceed-scoring-help">Proceed to Scoring</button>
+            <div id="proceed-scoring-help" class="sr-only">Continue to the scoring phase where you'll allocate points between different aspects of your options.</div>
         </section>
 
         <!-- Step 4: Comparative Scoring -->
-        <section id="scoring-section" class="section hidden">
-            <h2>Step 4: Comparative Scoring</h2>
+        <section id="scoring-section" class="section hidden" aria-labelledby="scoring-heading" role="region">
+            <h2 id="scoring-heading" tabindex="-1">Step 4: Comparative Scoring</h2>
             <p>For each comparison, decide which is more important and by how much.</p>
             
             <!-- Step 4.1: Option A Internal Comparison -->
@@ -157,17 +207,32 @@
                                 <span class="slider-label-right">Disadvantages of <span id="dis-a-label-1">Option A</span></span>
                             </div>
                             <div class="slider-container">
-                                <input type="range" id="slider-1-2" class="comparison-slider" min="0" max="100" step="5" value="50">
+                                <label for="slider-1-2" class="sr-only">Allocate 100 points between advantages and disadvantages of Option A</label>
+                                <input type="range" id="slider-1-2" class="comparison-slider" 
+                                       min="0" max="100" step="5" value="50"
+                                       aria-describedby="slider-1-2-help"
+                                       aria-valuetext="50 points to advantages, 50 points to disadvantages">
+                                <div id="slider-1-2-help" class="sr-only">Use arrow keys to adjust allocation. Left side gets more points as you move left, right side gets more points as you move right. Total always equals 100.</div>
                                 <div class="slider-values">
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-1">−</button>
-                                        <span id="value-1" class="slider-value-left editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-1">+</button>
+                                        <button class="value-btn minus" data-target="value-1" 
+                                                aria-label="Decrease points for advantages">−</button>
+                                        <span id="value-1" class="slider-value-left editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for advantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-1" 
+                                                aria-label="Increase points for advantages">+</button>
                                     </div>
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-2">−</button>
-                                        <span id="value-2" class="slider-value-right editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-2">+</button>
+                                        <button class="value-btn minus" data-target="value-2" 
+                                                aria-label="Decrease points for disadvantages">−</button>
+                                        <span id="value-2" class="slider-value-right editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for disadvantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-2" 
+                                                aria-label="Increase points for disadvantages">+</button>
                                     </div>
                                 </div>
                             </div>
