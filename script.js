@@ -1,4 +1,7 @@
+console.log('Script.js is loading...');
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - script.js is running');
     let choices = [];
     let selectedOptionA = '';
     let selectedOptionB = '';
@@ -24,12 +27,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultsSection = document.getElementById('results-section');
 
     // Initialize the app
+    console.log('About to initialize app...');
     init();
     
     // Check for dev mode hash navigation
+    console.log('About to check dev mode hash...');
     checkDevModeHash();
     
     // Listen for hash changes
+    console.log('Adding hashchange listener...');
     window.addEventListener('hashchange', checkDevModeHash);
 
     function init() {
