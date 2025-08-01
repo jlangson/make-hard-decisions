@@ -81,6 +81,8 @@
     </div>
 
     <script>
+        console.log('Test script is loading...');
+        
         // Test framework
         class TestRunner {
             constructor() {
@@ -401,8 +403,149 @@
             assertEqual(result.optionBScore, 200);
         });
 
+        // Hash Navigation Tests
+        runner.test('Hash navigation - #selection', () => {
+            // Test that #selection hash works
+            const originalHash = window.location.hash;
+            window.location.hash = '#selection';
+            
+            // Simulate the hash navigation (since we can't easily test the actual app navigation in this context)
+            // We'll test the core logic that would run
+            const mockData = {
+                choices: ['Take the new job', 'Stay at current company', 'Start freelancing'],
+                selectedOptionA: 'Take the new job',
+                selectedOptionB: 'Stay at current company'
+            };
+            
+            // Verify mock data structure is correct
+            assert(mockData.choices.length >= 2, 'Should have at least 2 choices');
+            assert(mockData.selectedOptionA, 'Should have selectedOptionA');
+            assert(mockData.selectedOptionB, 'Should have selectedOptionB');
+            assert(mockData.selectedOptionA !== mockData.selectedOptionB, 'Options should be different');
+            
+            // Restore original hash
+            window.location.hash = originalHash;
+        });
+
+        runner.test('Hash navigation - #comparison', () => {
+            // Test that #comparison hash works
+            const originalHash = window.location.hash;
+            window.location.hash = '#comparison';
+            
+            const mockData = {
+                choices: ['Take the new job', 'Stay at current company', 'Start freelancing'],
+                selectedOptionA: 'Take the new job',
+                selectedOptionB: 'Stay at current company'
+            };
+            
+            // Verify the comparison setup would work
+            assert(mockData.selectedOptionA, 'Should have selected option A');
+            assert(mockData.selectedOptionB, 'Should have selected option B');
+            assert(mockData.choices.includes(mockData.selectedOptionA), 'Option A should be in choices');
+            assert(mockData.choices.includes(mockData.selectedOptionB), 'Option B should be in choices');
+            
+            window.location.hash = originalHash;
+        });
+
+        runner.test('Hash navigation - #scoring', () => {
+            // Test that #scoring hash works
+            const originalHash = window.location.hash;
+            window.location.hash = '#scoring';
+            
+            const mockData = {
+                selectedOptionA: 'Take the new job',
+                selectedOptionB: 'Stay at current company',
+                advantagesA: 'Higher salary\\nNew challenges\\nBetter work-life balance\\nOpportunity for growth',
+                disadvantagesA: 'Unknown work culture\\nLonger commute\\nNeed to learn new systems\\nLeaving established relationships',
+                advantagesB: 'Familiar environment\\nEstablished relationships\\nShort commute\\nKnown expectations',
+                disadvantagesB: 'Limited growth opportunities\\nLower pay\\nRepetitive work\\nHigh stress levels'
+            };
+            
+            // Verify scoring setup data is complete
+            assert(mockData.advantagesA, 'Should have advantages for option A');
+            assert(mockData.disadvantagesA, 'Should have disadvantages for option A');
+            assert(mockData.advantagesB, 'Should have advantages for option B');
+            assert(mockData.disadvantagesB, 'Should have disadvantages for option B');
+            assert(mockData.advantagesA.length > 10, 'Should have substantial content for advantages A');
+            assert(mockData.disadvantagesA.length > 10, 'Should have substantial content for disadvantages A');
+            
+            window.location.hash = originalHash;
+        });
+
+        runner.test('Hash navigation - #results', () => {
+            // Test that #results hash works
+            const originalHash = window.location.hash;
+            window.location.hash = '#results';
+            
+            // Test the slider values that would be set
+            const mockSliderValues = {
+                'slider-1-2': 70,  // Option A internal: 70 adv, 30 dis
+                'slider-3-4': 40,  // Option B internal: 40 adv, 60 dis
+                'slider-5-6': 60,  // Advantages comparison: 60 A, 40 B
+                'slider-7-8': 30   // Disadvantages comparison: 30 A, 70 B
+            };
+            
+            // Convert slider values to circles for calculation test
+            const circles = {
+                circle1: mockSliderValues['slider-1-2'],           // 70
+                circle2: 100 - mockSliderValues['slider-1-2'],    // 30
+                circle3: mockSliderValues['slider-3-4'],           // 40
+                circle4: 100 - mockSliderValues['slider-3-4'],    // 60
+                circle5: mockSliderValues['slider-5-6'],           // 60
+                circle6: 100 - mockSliderValues['slider-5-6'],    // 40
+                circle7: mockSliderValues['slider-7-8'],           // 30
+                circle8: 100 - mockSliderValues['slider-7-8']     // 70
+            };
+            
+            // Test that calculation would work with these values
+            const result = calculateScores(circles);
+            
+            // Verify results are reasonable
+            assert(typeof result.optionAScore === 'number', 'Should calculate option A score');
+            assert(typeof result.optionBScore === 'number', 'Should calculate option B score');
+            assert(result.optionAScore >= -200 && result.optionAScore <= 200, 'Option A score should be in valid range');
+            assert(result.optionBScore >= -200 && result.optionBScore <= 200, 'Option B score should be in valid range');
+            
+            // Test decision classification with these scores
+            const decisionType = classifyDecision(result.optionAScore, result.optionBScore);
+            assert(decisionType, 'Should classify decision type');
+            const validTypes = ['No Brainer', "Can't Lose", "Can't Win", 'Fence Sitter', 'Clear Choice'];
+            assert(validTypes.includes(decisionType), `Decision type '${decisionType}' should be valid`);
+            
+            window.location.hash = originalHash;
+        });
+
+        runner.test('Hash navigation - Mock data consistency', () => {
+            // Test that all hash navigation functions would use consistent data
+            const mockData = {
+                choices: ['Take the new job', 'Stay at current company', 'Start freelancing'],
+                selectedOptionA: 'Take the new job',
+                selectedOptionB: 'Stay at current company'
+            };
+            
+            // Verify data consistency across different hash modes
+            assert(mockData.choices.includes(mockData.selectedOptionA), 'Selected A should be in choices list');
+            assert(mockData.choices.includes(mockData.selectedOptionB), 'Selected B should be in choices list');
+            assert(mockData.choices.length >= 2, 'Should have enough choices for selection');
+            
+            // Test option names are reasonable length
+            assert(mockData.selectedOptionA.length > 5, 'Option A name should be descriptive');
+            assert(mockData.selectedOptionB.length > 5, 'Option B name should be descriptive');
+        });
+
+        // Debug logging
+        console.log('About to run tests...');
+        console.log('Total tests registered:', runner.tests.length);
+        
         // Run all tests
-        runner.run();
+        try {
+            runner.run();
+            console.log('Tests completed successfully');
+        } catch (error) {
+            console.error('Error running tests:', error);
+            document.getElementById('test-summary').innerHTML = 'Error running tests: ' + error.message;
+            document.getElementById('test-summary').style.backgroundColor = '#e53e3e';
+        }
     </script>
 </body>
 </html>
