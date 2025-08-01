@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateSliderBackground(slider) {
         const value = slider.value;
         const percentage = value;
-        slider.style.background = `linear-gradient(to right, #ff6b35 0%, #ff6b35 ${percentage}%, #2196f3 ${percentage}%, #2196f3 100%)`;
+        slider.style.background = `linear-gradient(to right, #2196f3 0%, #2196f3 ${percentage}%, #ff6b35 ${percentage}%, #ff6b35 100%)`;
     }
 
     function initializeSliders() {
