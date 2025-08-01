@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const startOverBtn = document.getElementById('start-over');
     const universalStartOverBtn = document.getElementById('universal-start-over');
     const shareResultsBtn = document.getElementById('share-results');
+    const savePdfBtn = document.getElementById('save-pdf');
 
     // Sections
     const brainstormSection = document.getElementById('brainstorm-section');
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         startOverBtn.addEventListener('click', startOver);
         universalStartOverBtn.addEventListener('click', universalStartOver);
         shareResultsBtn.addEventListener('click', shareResults);
+        savePdfBtn.addEventListener('click', savePDF);
 
         // Handle dynamic choice input changes
         choicesContainer.addEventListener('input', handleChoiceInput);
@@ -691,6 +693,41 @@ ${winner ? `🏆 Recommended Choice: ${winner}` : '⚖️ Decision is too close 
 Made with Decision Helper 🧠✨`;
 
         return { text };
+    }
+
+    function savePDF() {
+        // Expand all details elements for PDF
+        document.querySelectorAll('details').forEach(details => {
+            details.open = true;
+        });
+
+        // Force layout recalculation and ensure results section is visible
+        const resultsSection = document.getElementById('results-section');
+        if (resultsSection) {
+            resultsSection.style.display = 'block';
+            resultsSection.style.visibility = 'visible';
+            // Force a reflow
+            resultsSection.offsetHeight;
+        }
+
+        // Use requestAnimationFrame for better timing, with fallback
+        const printDocument = () => {
+            // Double-check that content is ready
+            if (document.getElementById('results-content')?.children.length > 0) {
+                window.print();
+            } else {
+                // Fallback delay if content isn't ready
+                setTimeout(() => window.print(), 200);
+            }
+        };
+
+        if (window.requestAnimationFrame) {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(printDocument);
+            });
+        } else {
+            setTimeout(printDocument, 150);
+        }
     }
 
     // Dev Mode Functions
