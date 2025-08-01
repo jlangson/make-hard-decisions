@@ -75,6 +75,11 @@ document.addEventListener('DOMContentLoaded', function() {
         choicesContainer.addEventListener('input', handleChoiceInput);
         choicesContainer.addEventListener('click', handleRemoveChoice);
         choicesContainer.addEventListener('keydown', handleChoiceKeydown);
+        
+        // Handle plus/minus buttons and editable values
+        document.addEventListener('click', handleValueButtonClick);
+        document.addEventListener('blur', handleEditableValueBlur, true);
+        document.addEventListener('keydown', handleEditableValueKeydown);
     }
 
 
@@ -820,5 +825,104 @@ Made with Decision Helper 🧠✨`;
         // Calculate and show results
         calculateResult();
         console.log('Generated results section');
+    }
+
+    // Value Button and Editable Value Handlers
+    function handleValueButtonClick(event) {
+        if (!event.target.classList.contains('value-btn')) return;
+        
+        const targetId = event.target.getAttribute('data-target');
+        const valueElement = document.getElementById(targetId);
+        const isPlus = event.target.classList.contains('plus');
+        const isMinus = event.target.classList.contains('minus');
+        
+        if (!valueElement) return;
+        
+        let currentValue = parseInt(valueElement.textContent) || 0;
+        let newValue = currentValue;
+        
+        if (isPlus) {
+            newValue = Math.min(100, currentValue + 5);
+        } else if (isMinus) {
+            newValue = Math.max(0, currentValue - 5);
+        }
+        
+        if (newValue !== currentValue) {
+            updateValueAndSlider(targetId, newValue);
+        }
+    }
+    
+    function handleEditableValueBlur(event) {
+        if (!event.target.classList.contains('editable-value')) return;
+        
+        const valueElement = event.target;
+        const newValue = parseInt(valueElement.textContent) || 0;
+        const clampedValue = Math.max(0, Math.min(100, newValue));
+        
+        if (newValue !== clampedValue) {
+            valueElement.textContent = clampedValue;
+        }
+        
+        updateValueAndSlider(valueElement.id, clampedValue);
+    }
+    
+    function handleEditableValueKeydown(event) {
+        if (!event.target.classList.contains('editable-value')) return;
+        
+        // Handle Enter key to blur and apply changes
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            event.target.blur();
+        }
+        
+        // Only allow numeric input
+        if (event.key.length === 1 && !/[0-9]/.test(event.key) && !event.ctrlKey && !event.metaKey) {
+            event.preventDefault();
+        }
+    }
+    
+    function updateValueAndSlider(valueId, newValue) {
+        const valueElement = document.getElementById(valueId);
+        valueElement.textContent = newValue;
+        
+        // Find the corresponding slider and other value
+        let sliderId, otherValueId, isLeftValue;
+        
+        if (valueId === 'value-1' || valueId === 'value-2') {
+            sliderId = 'slider-1-2';
+            otherValueId = valueId === 'value-1' ? 'value-2' : 'value-1';
+            isLeftValue = valueId === 'value-1';
+        } else if (valueId === 'value-3' || valueId === 'value-4') {
+            sliderId = 'slider-3-4';
+            otherValueId = valueId === 'value-3' ? 'value-4' : 'value-3';
+            isLeftValue = valueId === 'value-3';
+        } else if (valueId === 'value-5' || valueId === 'value-6') {
+            sliderId = 'slider-5-6';
+            otherValueId = valueId === 'value-5' ? 'value-6' : 'value-5';
+            isLeftValue = valueId === 'value-5';
+        } else if (valueId === 'value-7' || valueId === 'value-8') {
+            sliderId = 'slider-7-8';
+            otherValueId = valueId === 'value-7' ? 'value-8' : 'value-7';
+            isLeftValue = valueId === 'value-7';
+        }
+        
+        if (sliderId && otherValueId) {
+            const slider = document.getElementById(sliderId);
+            const otherValueElement = document.getElementById(otherValueId);
+            
+            // Update slider position
+            if (isLeftValue) {
+                slider.value = newValue;
+            } else {
+                slider.value = 100 - newValue;
+            }
+            
+            // Update other value to maintain balance
+            const otherValue = 100 - newValue;
+            otherValueElement.textContent = otherValue;
+            
+            // Update slider background
+            updateSliderBackground(slider);
+        }
     }
 });
