@@ -651,9 +651,14 @@ h4 {
     }
     
     .slider-values {
-        flex-direction: column;
-        gap: 5px;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    
+    .slider-value-left,
+    .slider-value-right {
         text-align: center;
+        flex: 1;
     }
 }
 
