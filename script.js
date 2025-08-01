@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let choices = [];
     let selectedOptionA = '';
     let selectedOptionB = '';
+    
+    // Navigation history for undo/redo functionality
+    let navigationHistory = [];
+    let currentHistoryIndex = -1;
 
     // DOM Elements
     const choicesContainer = document.getElementById('choices-container');
@@ -19,6 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const universalStartOverBtn = document.getElementById('universal-start-over');
     const shareResultsBtn = document.getElementById('share-results');
     const savePdfBtn = document.getElementById('save-pdf');
+    const navBackBtn = document.getElementById('nav-back-btn');
+    const navForwardBtn = document.getElementById('nav-forward-btn');
 
     // Sections
     const brainstormSection = document.getElementById('brainstorm-section');
@@ -46,6 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
         updateChoices();
         setupEventListeners();
         updateMetaTags();
+        
+        // Create initial history entry for brainstorm section
+        initializeNavigationHistory();
+        updateNavigationButtons();
     }
 
     function updateMetaTags() {
@@ -75,6 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         universalStartOverBtn.addEventListener('click', universalStartOver);
         shareResultsBtn.addEventListener('click', shareResults);
         savePdfBtn.addEventListener('click', savePDF);
+        navBackBtn.addEventListener('click', goBack);
+        navForwardBtn.addEventListener('click', goForward);
 
         // Handle dynamic choice input changes
         choicesContainer.addEventListener('input', handleChoiceInput);
@@ -92,6 +104,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('click', handleValueButtonClick);
         document.addEventListener('blur', handleEditableValueBlur, true);
         document.addEventListener('keydown', handleEditableValueKeydown);
+        
+        // Keyboard shortcuts for navigation
+        document.addEventListener('keydown', handleNavigationKeydown);
     }
 
 
@@ -506,13 +521,21 @@ document.addEventListener('DOMContentLoaded', function() {
         resultsContent.innerHTML = resultsHTML;
     }
 
-    function showSection(targetSection) {
+    function showSection(targetSection, skipHistory = false) {
+        // Add to navigation history unless explicitly skipped (for undo/redo operations)
+        if (!skipHistory) {
+            addToNavigationHistory(targetSection);
+        }
+        
         // Hide all sections
         [brainstormSection, selectionSection, comparisonSection, scoringSection, resultsSection]
             .forEach(section => section.classList.add('hidden'));
         
         // Show target section
         targetSection.classList.remove('hidden');
+        
+        // Update navigation buttons
+        updateNavigationButtons();
         
         // Scroll to top
         window.scrollTo(0, 0);
@@ -538,8 +561,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function universalStartOver() {
-        // Clear saved data
+        // Clear saved data and navigation history
         clearSavedData();
+        navigationHistory = [];
+        currentHistoryIndex = -1;
         
         // Clear all form data first
         document.querySelectorAll('input, textarea').forEach(element => {
@@ -992,6 +1017,25 @@ Made with Decision Helper 🧠✨`;
         }
     }
 
+    function handleNavigationKeydown(event) {
+        // Only handle navigation keys if user isn't typing in an input/textarea
+        if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
+        // Alt + Left Arrow = Go Back
+        if (event.altKey && event.key === 'ArrowLeft') {
+            event.preventDefault();
+            goBack();
+        }
+        
+        // Alt + Right Arrow = Go Forward
+        if (event.altKey && event.key === 'ArrowRight') {
+            event.preventDefault();
+            goForward();
+        }
+    }
+
     // Save/Load functionality
     function saveData(showIndicator = false) {
         const data = {
@@ -1012,6 +1056,8 @@ Made with Decision Helper 🧠✨`;
                     'slider-7-8': document.getElementById('slider-7-8')?.value || 50
                 }
             },
+            navigationHistory: [...navigationHistory],
+            currentHistoryIndex,
             timestamp: Date.now()
         };
         
@@ -1038,6 +1084,12 @@ Made with Decision Helper 🧠✨`;
             choices = [...data.choices];
             selectedOptionA = data.selectedOptionA;
             selectedOptionB = data.selectedOptionB;
+
+            // Restore navigation history
+            if (data.navigationHistory && Array.isArray(data.navigationHistory)) {
+                navigationHistory = [...data.navigationHistory];
+                currentHistoryIndex = data.currentHistoryIndex || -1;
+            }
 
             // Restore form inputs
             if (data.formData.choiceInputs.length > 0) {
@@ -1083,8 +1135,11 @@ Made with Decision Helper 🧠✨`;
                 }
             });
 
-            // Navigate to the correct section
-            navigateToSection(data.currentSection);
+            // Navigate to the correct section (skip adding to history since we're restoring)
+            navigateToSection(data.currentSection, true);
+            
+            // Update navigation buttons after restoring
+            updateNavigationButtons();
             
             // Show restore notification
             showRestoreNotification();
@@ -1104,33 +1159,46 @@ Made with Decision Helper 🧠✨`;
         return 'brainstorm';
     }
 
-    function navigateToSection(sectionName) {
+    function navigateToSection(sectionName, skipHistory = false) {
         switch (sectionName) {
             case 'selection':
                 if (choices.length >= 3) {
                     populateSelectors();
-                    showSection(selectionSection);
+                    showSection(selectionSection, skipHistory);
                 }
                 break;
             case 'comparison':
                 if (selectedOptionA && selectedOptionB) {
                     document.getElementById('option-a-title').textContent = selectedOptionA;
                     document.getElementById('option-b-title').textContent = selectedOptionB;
-                    showSection(comparisonSection);
+                    showSection(comparisonSection, skipHistory);
                 }
                 break;
             case 'scoring':
                 if (selectedOptionA && selectedOptionB) {
-                    proceedToScoring();
+                    // For scoring, we need to call proceedToScoring but skip history
+                    // This is tricky - we'll handle it specially
+                    if (skipHistory) {
+                        showSection(scoringSection, true);
+                        setupComparisonInputListeners();
+                        initializeSliders();
+                    } else {
+                        proceedToScoring();
+                    }
                 }
                 break;
             case 'results':
                 if (selectedOptionA && selectedOptionB) {
-                    calculateResult();
+                    // Similar handling for results
+                    if (skipHistory) {
+                        showSection(resultsSection, true);
+                    } else {
+                        calculateResult();
+                    }
                 }
                 break;
             default:
-                showSection(brainstormSection);
+                showSection(brainstormSection, skipHistory);
         }
     }
 
@@ -1201,5 +1269,196 @@ Made with Decision Helper 🧠✨`;
 
     function clearSavedData() {
         localStorage.removeItem('decisionHelperData');
+    }
+
+    // Navigation History Functions
+    function addToNavigationHistory(targetSection) {
+        // Capture current state before navigating
+        const currentState = captureCurrentState();
+        
+        // If we're not at the end of history, remove everything after current position
+        if (currentHistoryIndex < navigationHistory.length - 1) {
+            navigationHistory = navigationHistory.slice(0, currentHistoryIndex + 1);
+        }
+        
+        // Add new state to history
+        navigationHistory.push({
+            section: getSectionName(targetSection),
+            state: currentState,
+            timestamp: Date.now()
+        });
+        
+        // Limit history to 20 entries to prevent memory issues
+        if (navigationHistory.length > 20) {
+            navigationHistory = navigationHistory.slice(-20);
+        }
+        
+        currentHistoryIndex = navigationHistory.length - 1;
+    }
+
+    function captureCurrentState() {
+        return {
+            choices: [...choices],
+            selectedOptionA,
+            selectedOptionB,
+            formData: {
+                choiceInputs: Array.from(document.querySelectorAll('.choice')).map(input => input.value),
+                advantagesA: document.getElementById('advantages-a')?.value || '',
+                disadvantagesA: document.getElementById('disadvantages-a')?.value || '',
+                advantagesB: document.getElementById('advantages-b')?.value || '',
+                disadvantagesB: document.getElementById('disadvantages-b')?.value || '',
+                sliderValues: {
+                    'slider-1-2': document.getElementById('slider-1-2')?.value || 50,
+                    'slider-3-4': document.getElementById('slider-3-4')?.value || 50,
+                    'slider-5-6': document.getElementById('slider-5-6')?.value || 50,
+                    'slider-7-8': document.getElementById('slider-7-8')?.value || 50
+                }
+            }
+        };
+    }
+
+    function getSectionName(sectionElement) {
+        if (sectionElement === brainstormSection) return 'brainstorm';
+        if (sectionElement === selectionSection) return 'selection';
+        if (sectionElement === comparisonSection) return 'comparison';
+        if (sectionElement === scoringSection) return 'scoring';
+        if (sectionElement === resultsSection) return 'results';
+        return 'brainstorm';
+    }
+
+    function getSectionElement(sectionName) {
+        switch (sectionName) {
+            case 'brainstorm': return brainstormSection;
+            case 'selection': return selectionSection;
+            case 'comparison': return comparisonSection;
+            case 'scoring': return scoringSection;
+            case 'results': return resultsSection;
+            default: return brainstormSection;
+        }
+    }
+
+    function canGoBack() {
+        return currentHistoryIndex > 0;
+    }
+
+    function canGoForward() { 
+        return currentHistoryIndex < navigationHistory.length - 1;
+    }
+
+    function goBack() {
+        if (!canGoBack()) return;
+        
+        currentHistoryIndex--;
+        const historyEntry = navigationHistory[currentHistoryIndex];
+        restoreState(historyEntry.state);
+        
+        const targetSection = getSectionElement(historyEntry.section);
+        showSection(targetSection, true); // Skip adding to history
+    }
+
+    function goForward() {
+        if (!canGoForward()) return;
+        
+        currentHistoryIndex++;
+        const historyEntry = navigationHistory[currentHistoryIndex];
+        restoreState(historyEntry.state);
+        
+        const targetSection = getSectionElement(historyEntry.section);
+        showSection(targetSection, true); // Skip adding to history
+    }
+
+    function restoreState(state) {
+        // Restore choices and selected options
+        choices = [...state.choices];
+        selectedOptionA = state.selectedOptionA;
+        selectedOptionB = state.selectedOptionB;
+
+        // Restore choice inputs
+        if (state.formData.choiceInputs.length > 0) {
+            // Add enough choice inputs
+            while (document.querySelectorAll('.choice').length < state.formData.choiceInputs.length) {
+                addChoice();
+            }
+            // Remove excess inputs
+            while (document.querySelectorAll('.choice').length > state.formData.choiceInputs.length) {
+                const choiceInputs = document.querySelectorAll('.choice-input');
+                if (choiceInputs.length > 1) {
+                    choiceInputs[choiceInputs.length - 1].remove();
+                }
+            }
+
+            // Fill choice inputs
+            const choiceInputs = document.querySelectorAll('.choice');
+            state.formData.choiceInputs.forEach((value, index) => {
+                if (choiceInputs[index]) {
+                    choiceInputs[index].value = value;
+                }
+            });
+            updateChoices();
+        }
+
+        // Restore comparison textareas
+        if (document.getElementById('advantages-a')) document.getElementById('advantages-a').value = state.formData.advantagesA;
+        if (document.getElementById('disadvantages-a')) document.getElementById('disadvantages-a').value = state.formData.disadvantagesA;
+        if (document.getElementById('advantages-b')) document.getElementById('advantages-b').value = state.formData.advantagesB;
+        if (document.getElementById('disadvantages-b')) document.getElementById('disadvantages-b').value = state.formData.disadvantagesB;
+
+        // Restore slider values
+        Object.entries(state.formData.sliderValues).forEach(([sliderId, value]) => {
+            const slider = document.getElementById(sliderId);
+            if (slider) {
+                slider.value = value;
+                updateSliderBackground(slider);
+                
+                // Update corresponding value displays
+                const parts = sliderId.split('-');
+                const leftValueId = `value-${parts[1]}`;
+                const rightValueId = `value-${parts[2]}`;
+                const leftValue = document.getElementById(leftValueId);
+                const rightValue = document.getElementById(rightValueId);
+                
+                if (leftValue && rightValue) {
+                    leftValue.textContent = value;
+                    rightValue.textContent = 100 - value;
+                }
+            }
+        });
+
+        // Update section-specific elements
+        if (selectedOptionA && selectedOptionB) {
+            // Update option titles if in comparison/scoring/results
+            const optionATitle = document.getElementById('option-a-title');
+            const optionBTitle = document.getElementById('option-b-title');
+            if (optionATitle) optionATitle.textContent = selectedOptionA;
+            if (optionBTitle) optionBTitle.textContent = selectedOptionB;
+        }
+    }
+
+    function updateNavigationButtons() {
+        const backBtn = document.getElementById('nav-back-btn');
+        const forwardBtn = document.getElementById('nav-forward-btn');
+        
+        if (backBtn) {
+            backBtn.disabled = !canGoBack();
+            backBtn.style.opacity = canGoBack() ? '1' : '0.5';
+        }
+        
+        if (forwardBtn) {
+            forwardBtn.disabled = !canGoForward();
+            forwardBtn.style.opacity = canGoForward() ? '1' : '0.5';
+        }
+    }
+
+    function initializeNavigationHistory() {
+        // Only initialize if history is empty (not restoring from saved data)
+        if (navigationHistory.length === 0) {
+            const initialState = captureCurrentState();
+            navigationHistory.push({
+                section: 'brainstorm',
+                state: initialState,
+                timestamp: Date.now()
+            });
+            currentHistoryIndex = 0;
+        }
     }
 });
