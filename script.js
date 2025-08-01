@@ -135,6 +135,26 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // If exactly 2 options, skip selection step and go directly to comparison
+        if (choices.length === 2) {
+            selectedOptionA = choices[0];
+            selectedOptionB = choices[1];
+            
+            // Update titles in comparison section
+            document.getElementById('option-a-title').textContent = selectedOptionA;
+            document.getElementById('option-b-title').textContent = selectedOptionB;
+            
+            // Clear any existing text in the textareas
+            document.getElementById('advantages-a').value = '';
+            document.getElementById('disadvantages-a').value = '';
+            document.getElementById('advantages-b').value = '';
+            document.getElementById('disadvantages-b').value = '';
+            
+            showSection(comparisonSection);
+            return;
+        }
+
+        // For 3+ options, show selection step
         populateSelectors();
         showSection(selectionSection);
     }
