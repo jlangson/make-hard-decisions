@@ -35,6 +35,11 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Universal Start Over Button -->
+    <button id="universal-start-over" class="universal-start-over" title="Start Over?">
+        ↻
+    </button>
+
     <div class="container">
         <h1>Decision Helper</h1>
         <p class="subtitle">Make difficult decisions with confidence</p>
@@ -53,8 +58,10 @@
                     <button class="remove-choice">×</button>
                 </div>
             </div>
-            <button id="add-choice">+ Add Another Option</button>
-            <button id="proceed-to-comparison" class="primary-btn">Proceed to Comparison</button>
+            <div class="brainstorm-actions">
+                <button id="add-choice">+ Add Another Option</button>
+                <button id="proceed-to-comparison" class="primary-btn">Proceed to Comparison</button>
+            </div>
         </section>
 
         <!-- Step 2: Select Two Options -->

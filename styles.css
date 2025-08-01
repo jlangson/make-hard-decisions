@@ -11,6 +11,41 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     padding: 20px;
+    position: relative;
+}
+
+/* Universal Start Over Button */
+.universal-start-over {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid #667eea;
+    color: #667eea;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.universal-start-over:hover {
+    background: #667eea;
+    color: white;
+    transform: rotate(180deg) scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.universal-start-over:active {
+    transform: rotate(180deg) scale(0.95);
 }
 
 .container {
@@ -117,6 +152,13 @@ h4 {
     background: #c53030;
 }
 
+.brainstorm-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 #add-choice {
     background: #48bb78;
     color: white;
@@ -125,7 +167,6 @@ h4 {
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
-    margin-right: 15px;
     transition: background-color 0.3s ease;
 }
 
@@ -515,6 +556,15 @@ h4 {
         text-align: center;
     }
     
+    .brainstorm-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .brainstorm-actions button {
+        width: 100%;
+    }
+    
     .results-actions {
         flex-direction: column;
         align-items: center;
@@ -523,5 +573,13 @@ h4 {
     .results-actions button {
         width: 100%;
         max-width: 250px;
+    }
+    
+    .universal-start-over {
+        top: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.6rem;
     }
 }

@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const proceedToScoringBtn = document.getElementById('proceed-to-scoring');
     const calculateResultBtn = document.getElementById('calculate-result');
     const startOverBtn = document.getElementById('start-over');
+    const universalStartOverBtn = document.getElementById('universal-start-over');
     const shareResultsBtn = document.getElementById('share-results');
 
     // Sections
@@ -55,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         proceedToScoringBtn.addEventListener('click', proceedToScoring);
         calculateResultBtn.addEventListener('click', calculateResult);
         startOverBtn.addEventListener('click', startOver);
+        universalStartOverBtn.addEventListener('click', universalStartOver);
         shareResultsBtn.addEventListener('click', shareResults);
 
         // Handle dynamic choice input changes
@@ -516,6 +518,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (choiceInputs.length > 0) {
             choiceInputs[0].focus();
         }
+    }
+
+    function universalStartOver() {
+        // Clear all form data first
+        document.querySelectorAll('input, textarea').forEach(element => {
+            element.value = '';
+        });
+        
+        // Force hard reload
+        window.location.href = window.location.href;
     }
 
     function shareResults() {
