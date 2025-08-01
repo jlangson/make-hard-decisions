@@ -37,6 +37,15 @@
     <link rel="alternate icon" href="favicon-question.svg">
     <link rel="mask-icon" href="favicon-question.svg" color="#667eea">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS PWA support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Decision Helper">
+    <link rel="apple-touch-icon" href="favicon-question.svg">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -104,11 +113,11 @@
                     <div class="pros-cons-container">
                         <div class="pros-cons-box">
                             <h4>Advantages</h4>
-                            <textarea id="advantages-a" placeholder="List the advantages of this option..."></textarea>
+                            <textarea id="advantages-a" placeholder="List the advantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
                         </div>
                         <div class="pros-cons-box">
                             <h4>Disadvantages</h4>
-                            <textarea id="disadvantages-a" placeholder="List the disadvantages of this option..."></textarea>
+                            <textarea id="disadvantages-a" placeholder="List the disadvantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
                         </div>
                     </div>
                 </div>
@@ -118,11 +127,11 @@
                     <div class="pros-cons-container">
                         <div class="pros-cons-box">
                             <h4>Advantages</h4>
-                            <textarea id="advantages-b" placeholder="List the advantages of this option..."></textarea>
+                            <textarea id="advantages-b" placeholder="List the advantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
                         </div>
                         <div class="pros-cons-box">
                             <h4>Disadvantages</h4>
-                            <textarea id="disadvantages-b" placeholder="List the disadvantages of this option..."></textarea>
+                            <textarea id="disadvantages-b" placeholder="List the disadvantages of this option..." autocomplete="off" spellcheck="true" inputmode="text"></textarea>
                         </div>
                     </div>
                 </div>

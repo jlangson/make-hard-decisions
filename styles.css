@@ -19,8 +19,8 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    width: 50px;
-    height: 50px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid #667eea;
@@ -35,6 +35,7 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(10px);
+    touch-action: manipulation;
 }
 
 .universal-start-over:hover {
@@ -59,8 +60,8 @@ body {
 }
 
 .nav-btn {
-    width: 45px;
-    height: 45px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.9);
     border: 2px solid #667eea;
@@ -74,6 +75,7 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(10px);
+    touch-action: manipulation;
 }
 
 .nav-btn:hover:not(:disabled) {
@@ -191,15 +193,18 @@ h4 {
     background: #e53e3e;
     color: white;
     border: none;
-    width: 35px;
-    height: 35px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s ease;
+    touch-action: manipulation;
+    min-width: 44px;
+    min-height: 44px;
 }
 
 .remove-choice:hover {
@@ -409,14 +414,15 @@ h4 {
 
 .comparison-slider::-webkit-slider-thumb {
     appearance: none;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: white;
     border: 4px solid #333;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease;
+    touch-action: manipulation;
 }
 
 .comparison-slider::-webkit-slider-thumb:hover {
@@ -425,13 +431,14 @@ h4 {
 }
 
 .comparison-slider::-moz-range-thumb {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: white;
     border: 4px solid #333;
     cursor: pointer;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    touch-action: manipulation;
 }
 
 .slider-values {
@@ -678,6 +685,28 @@ h4 {
         align-self: flex-end;
         margin-top: 5px;
     }
+
+    /* Mobile navigation positioning to avoid gesture conflicts */
+    .navigation-controls {
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        gap: 12px;
+    }
+    
+    .nav-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .universal-start-over {
+        top: 15px;
+        right: 15px;
+        width: 54px;
+        height: 54px;
+    }
     
     .comparison-pair {
         flex-direction: column;
@@ -729,29 +758,55 @@ h4 {
         font-size: 1.8rem;
     }
     
+    /* Enhanced form inputs for mobile */
+    .choice {
+        min-height: 48px;
+        font-size: 1rem;
+        padding: 14px 16px;
+        touch-action: manipulation;
+    }
+    
+    .pros-cons-box textarea {
+        min-height: 150px;
+        font-size: 1rem;
+        line-height: 1.5;
+        padding: 16px;
+        touch-action: manipulation;
+        resize: vertical;
+    }
+    
+    /* Improved button sizing */
     .primary-btn,
     .secondary-btn {
         width: 100%;
         text-align: center;
+        min-height: 48px;
+        font-size: 1rem;
+        padding: 14px 20px;
+        touch-action: manipulation;
     }
     
     .brainstorm-actions {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
     
     .brainstorm-actions button {
         width: 100%;
+        min-height: 48px;
     }
     
     .results-actions {
         flex-direction: column;
         align-items: center;
+        gap: 12px;
     }
     
     .results-actions button {
         width: 100%;
         max-width: 250px;
+        min-height: 48px;
     }
     
     .universal-start-over {
@@ -760,6 +815,108 @@ h4 {
         width: 45px;
         height: 45px;
         font-size: 1.6rem;
+    }
+    
+    /* Enhanced typography and spacing for mobile */
+    body {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+    
+    h2, h3 {
+        line-height: 1.4;
+        margin-bottom: 15px;
+    }
+    
+    h4 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    
+    p {
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    
+    /* Better spacing for mobile touch */
+    .step-reference {
+        margin-top: 25px;
+        padding: 20px;
+    }
+    
+    .step-reference-item {
+        margin-bottom: 20px;
+    }
+    
+    .result-item {
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+    
+    /* Improved slider spacing */
+    .comparison-step {
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .slider-comparison {
+        gap: 25px;
+    }
+    
+    .slider-labels {
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+    
+    /* Better button spacing */
+    .results-actions,
+    .brainstorm-actions {
+        margin-top: 25px;
+    }
+    
+    /* Enhanced mobile interactions */
+    .primary-btn:active,
+    .secondary-btn:active,
+    .nav-btn:active,
+    .universal-start-over:active {
+        transform: scale(0.96);
+    }
+    
+    /* Improved focus indicators for mobile */
+    .choice:focus,
+    .pros-cons-box textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        outline: none;
+    }
+    
+    /* Better slider interaction on mobile */
+    .comparison-slider {
+        height: 16px;
+        touch-action: none;
+    }
+    
+    .comparison-slider::-webkit-slider-thumb {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .comparison-slider::-moz-range-thumb {
+        width: 36px;
+        height: 36px;
+    }
+    
+    /* Mobile-specific modal improvements */
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+        max-width: none;
     }
 }
 
