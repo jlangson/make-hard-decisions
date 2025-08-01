@@ -526,8 +526,19 @@ document.addEventListener('DOMContentLoaded', function() {
             element.value = '';
         });
         
-        // Force hard reload
-        window.location.href = window.location.href;
+        // Try multiple reload methods for maximum reliability
+        try {
+            // Method 1: Force reload with cache bypass
+            window.location.reload(true);
+        } catch (e) {
+            try {
+                // Method 2: Replace current location
+                window.location.replace(window.location.href);
+            } catch (e2) {
+                // Method 3: Assign new location (fallback)
+                window.location.href = window.location.pathname + window.location.search;
+            }
+        }
     }
 
     function shareResults() {

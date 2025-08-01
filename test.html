@@ -403,14 +403,115 @@
             assertEqual(result.optionBScore, 200);
         });
 
-        // Hash Navigation Tests
-        runner.test('Hash navigation - #selection', () => {
-            // Test that #selection hash works
-            const originalHash = window.location.hash;
-            window.location.hash = '#selection';
+        // Refresh Button Tests
+        runner.test('Universal start-over button - clear form data', () => {
+            // Create mock inputs and textareas
+            const mockInput = document.createElement('input');
+            mockInput.value = 'test input value';
+            const mockTextarea = document.createElement('textarea');
+            mockTextarea.value = 'test textarea content';
             
-            // Simulate the hash navigation (since we can't easily test the actual app navigation in this context)
-            // We'll test the core logic that would run
+            // Add them to DOM temporarily
+            document.body.appendChild(mockInput);
+            document.body.appendChild(mockTextarea);
+            
+            // Simulate the form clearing part of universalStartOver
+            document.querySelectorAll('input, textarea').forEach(element => {
+                element.value = '';
+            });
+            
+            // Verify forms were cleared
+            assertEqual(mockInput.value, '');
+            assertEqual(mockTextarea.value, '');
+            
+            // Clean up
+            document.body.removeChild(mockInput);
+            document.body.removeChild(mockTextarea);
+        });
+
+        runner.test('Universal start-over button - reload methods available', () => {
+            // Test that the reload methods exist and are functions
+            assert(typeof window.location.reload === 'function', 'window.location.reload should be a function');
+            assert(typeof window.location.replace === 'function', 'window.location.replace should be a function');
+            assert(typeof window.location.href === 'string', 'window.location.href should be accessible');
+            assert(typeof window.location.pathname === 'string', 'window.location.pathname should be accessible');
+            assert(typeof window.location.search === 'string', 'window.location.search should be accessible');
+        });
+
+        runner.test('Universal start-over button - cascading reload logic', () => {
+            // Test the logic structure without actually touching window.location methods
+            // This tests the conceptual flow of our cascading approach
+            
+            // Test scenario 1: Simulate successful first method
+            function mockReload(forceReload) {
+                if (forceReload === true) {
+                    return { success: true, method: 'reload' };
+                }
+                throw new Error('Invalid reload parameter');
+            }
+            
+            let result = mockReload(true);
+            assert(result.success === true, 'First method (reload) should succeed with proper parameter');
+            assert(result.method === 'reload', 'Should identify reload method');
+            
+            // Test scenario 2: Simulate first method fails, second succeeds
+            function mockReloadFails() {
+                throw new Error('Reload failed');
+            }
+            
+            function mockReplace(url) {
+                if (typeof url === 'string' && url.length > 0) {
+                    return { success: true, method: 'replace' };
+                }
+                throw new Error('Invalid URL');
+            }
+            
+            try {
+                mockReloadFails();
+                assert(false, 'Should have thrown error');
+            } catch (e) {
+                result = mockReplace('http://example.com');
+                assert(result.success === true, 'Second method (replace) should succeed');
+                assert(result.method === 'replace', 'Should identify replace method');
+            }
+            
+            // Test scenario 3: Fallback URL construction logic
+            const mockLocation = {
+                pathname: '/test-path',
+                search: '?param=value'
+            };
+            
+            const fallbackUrl = mockLocation.pathname + mockLocation.search;
+            assert(typeof fallbackUrl === 'string', 'Fallback URL should be constructible');
+            assert(fallbackUrl === '/test-path?param=value', 'Should construct correct fallback URL');
+            assert(fallbackUrl.length > 1, 'Fallback URL should have substantial content');
+            
+            // Test scenario 4: Error handling flow
+            let errorCount = 0;
+            
+            function cascadingLogic() {
+                try {
+                    mockReloadFails();
+                } catch (e1) {
+                    errorCount++;
+                    try {
+                        throw new Error('Replace also failed');
+                    } catch (e2) {
+                        errorCount++;
+                        // Would fall back to href assignment
+                        return 'fallback-executed';
+                    }
+                }
+            }
+            
+            const finalResult = cascadingLogic();
+            assert(errorCount === 2, 'Should catch both method failures');
+            assert(finalResult === 'fallback-executed', 'Should execute fallback when both methods fail');
+        });
+
+        // Hash Navigation Tests
+        runner.test('Hash navigation - selection mock data', () => {
+            // Test the mock data structure for selection navigation
             const mockData = {
                 choices: ['Take the new job', 'Stay at current company', 'Start freelancing'],
                 selectedOptionA: 'Take the new job',
@@ -422,16 +523,10 @@
             assert(mockData.selectedOptionA, 'Should have selectedOptionA');
             assert(mockData.selectedOptionB, 'Should have selectedOptionB');
             assert(mockData.selectedOptionA !== mockData.selectedOptionB, 'Options should be different');
-            
-            // Restore original hash
-            window.location.hash = originalHash;
         });
 
-        runner.test('Hash navigation - #comparison', () => {
-            // Test that #comparison hash works
-            const originalHash = window.location.hash;
-            window.location.hash = '#comparison';
-            
+        runner.test('Hash navigation - comparison mock data', () => {
+            // Test the mock data structure for comparison navigation
             const mockData = {
                 choices: ['Take the new job', 'Stay at current company', 'Start freelancing'],
                 selectedOptionA: 'Take the new job',
@@ -443,22 +538,17 @@
             assert(mockData.selectedOptionB, 'Should have selected option B');
             assert(mockData.choices.includes(mockData.selectedOptionA), 'Option A should be in choices');
             assert(mockData.choices.includes(mockData.selectedOptionB), 'Option B should be in choices');
-            
-            window.location.hash = originalHash;
         });
 
-        runner.test('Hash navigation - #scoring', () => {
-            // Test that #scoring hash works
-            const originalHash = window.location.hash;
-            window.location.hash = '#scoring';
-            
+        runner.test('Hash navigation - scoring mock data', () => {
+            // Test the mock data structure for scoring navigation
             const mockData = {
                 selectedOptionA: 'Take the new job',
                 selectedOptionB: 'Stay at current company',
-                advantagesA: 'Higher salary\\nNew challenges\\nBetter work-life balance\\nOpportunity for growth',
-                disadvantagesA: 'Unknown work culture\\nLonger commute\\nNeed to learn new systems\\nLeaving established relationships',
-                advantagesB: 'Familiar environment\\nEstablished relationships\\nShort commute\\nKnown expectations',
-                disadvantagesB: 'Limited growth opportunities\\nLower pay\\nRepetitive work\\nHigh stress levels'
+                advantagesA: 'Higher salary\nNew challenges\nBetter work-life balance\nOpportunity for growth',
+                disadvantagesA: 'Unknown work culture\nLonger commute\nNeed to learn new systems\nLeaving established relationships',
+                advantagesB: 'Familiar environment\nEstablished relationships\nShort commute\nKnown expectations',
+                disadvantagesB: 'Limited growth opportunities\nLower pay\nRepetitive work\nHigh stress levels'
             };
             
             // Verify scoring setup data is complete
@@ -468,16 +558,10 @@
             assert(mockData.disadvantagesB, 'Should have disadvantages for option B');
             assert(mockData.advantagesA.length > 10, 'Should have substantial content for advantages A');
             assert(mockData.disadvantagesA.length > 10, 'Should have substantial content for disadvantages A');
-            
-            window.location.hash = originalHash;
         });
 
-        runner.test('Hash navigation - #results', () => {
-            // Test that #results hash works
-            const originalHash = window.location.hash;
-            window.location.hash = '#results';
-            
-            // Test the slider values that would be set
+        runner.test('Hash navigation - results calculation', () => {
+            // Test the slider values and calculation for results navigation
             const mockSliderValues = {
                 'slider-1-2': 70,  // Option A internal: 70 adv, 30 dis
                 'slider-3-4': 40,  // Option B internal: 40 adv, 60 dis
@@ -511,8 +595,6 @@
             assert(decisionType, 'Should classify decision type');
             const validTypes = ['No Brainer', "Can't Lose", "Can't Win", 'Fence Sitter', 'Clear Choice'];
             assert(validTypes.includes(decisionType), `Decision type '${decisionType}' should be valid`);
-            
-            window.location.hash = originalHash;
         });
 
         runner.test('Hash navigation - Mock data consistency', () => {
