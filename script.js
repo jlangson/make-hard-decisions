@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the app
     init();
+    
+    // Check for dev mode hash navigation
+    checkDevModeHash();
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', checkDevModeHash);
 
     function init() {
         updateChoices();
@@ -643,5 +649,143 @@ ${winner ? `🏆 Recommended Choice: ${winner}` : '⚖️ Decision is too close 
 Made with Decision Helper 🧠✨`;
 
         return { text };
+    }
+
+    // Dev Mode Functions
+    function checkDevModeHash() {
+        const hash = window.location.hash.substring(1); // Remove the #
+        console.log('Dev mode hash detected:', hash); // Debug log
+        
+        switch(hash) {
+            case 'selection':
+                console.log('Setting up selection mock data');
+                setTimeout(setupMockDataForSelection, 100);
+                break;
+            case 'comparison':
+                console.log('Setting up comparison mock data');
+                setTimeout(setupMockDataForComparison, 100);
+                break;
+            case 'scoring':
+                console.log('Setting up scoring mock data');
+                setTimeout(setupMockDataForScoring, 100);
+                break;
+            case 'results':
+                console.log('Setting up results mock data');
+                setTimeout(setupMockDataForResults, 100);
+                break;
+            default:
+                console.log('No dev mode hash found, proceeding normally');
+                break;
+        }
+    }
+
+    function getMockData() {
+        return {
+            choices: ['Take the new job', 'Stay at current company', 'Start freelancing'],
+            selectedOptionA: 'Take the new job',
+            selectedOptionB: 'Stay at current company',
+            advantagesA: 'Higher salary\nNew challenges\nBetter work-life balance\nOpportunity for growth',
+            disadvantagesA: 'Unknown work culture\nLonger commute\nNeed to learn new systems\nLeaving established relationships',
+            advantagesB: 'Familiar environment\nEstablished relationships\nShort commute\nKnown expectations',
+            disadvantagesB: 'Limited growth opportunities\nLower pay\nRepetitive work\nHigh stress levels'
+        };
+    }
+
+    function setupMockDataForSelection() {
+        const mockData = getMockData();
+        console.log('Setting up selection with data:', mockData);
+        
+        // Make sure we have enough choice inputs
+        while (document.querySelectorAll('.choice').length < mockData.choices.length) {
+            addChoice();
+        }
+        
+        // Fill in the choice inputs
+        const choiceInputs = document.querySelectorAll('.choice');
+        mockData.choices.forEach((choice, index) => {
+            if (choiceInputs[index]) {
+                choiceInputs[index].value = choice;
+                console.log(`Set choice ${index} to:`, choice);
+            }
+        });
+        
+        // Update choices array and enable button
+        updateChoices(); // Use existing function to update choices array
+        
+        // Navigate to selection
+        populateSelectors();
+        showSection(selectionSection);
+        console.log('Navigated to selection section');
+    }
+
+    function setupMockDataForComparison() {
+        const mockData = getMockData();
+        console.log('Setting up comparison with data:', mockData);
+        
+        // Set up everything for comparison
+        choices = [...mockData.choices];
+        selectedOptionA = mockData.selectedOptionA;
+        selectedOptionB = mockData.selectedOptionB;
+        
+        // Update titles
+        document.getElementById('option-a-title').textContent = selectedOptionA;
+        document.getElementById('option-b-title').textContent = selectedOptionB;
+        
+        // Navigate to comparison
+        showSection(comparisonSection);
+        console.log('Navigated to comparison section');
+    }
+
+    function setupMockDataForScoring() {
+        const mockData = getMockData();
+        console.log('Setting up scoring with data:', mockData);
+        
+        // Set up everything including pros/cons
+        choices = [...mockData.choices];
+        selectedOptionA = mockData.selectedOptionA;
+        selectedOptionB = mockData.selectedOptionB;
+        
+        // Fill in the textareas
+        document.getElementById('advantages-a').value = mockData.advantagesA;
+        document.getElementById('disadvantages-a').value = mockData.disadvantagesA;
+        document.getElementById('advantages-b').value = mockData.advantagesB;
+        document.getElementById('disadvantages-b').value = mockData.disadvantagesB;
+        
+        // Set up scoring section as if we just came from comparison
+        proceedToScoring();
+        console.log('Set up scoring section');
+    }
+
+    function setupMockDataForResults() {
+        const mockData = getMockData();
+        console.log('Setting up results with data:', mockData);
+        
+        // Set up everything
+        choices = [...mockData.choices];
+        selectedOptionA = mockData.selectedOptionA;
+        selectedOptionB = mockData.selectedOptionB;
+        
+        // Fill in the textareas
+        document.getElementById('advantages-a').value = mockData.advantagesA;
+        document.getElementById('disadvantages-a').value = mockData.disadvantagesA;
+        document.getElementById('advantages-b').value = mockData.advantagesB;
+        document.getElementById('disadvantages-b').value = mockData.disadvantagesB;
+        
+        // Set some sample slider values for realistic results
+        document.getElementById('slider-1-2').value = 70; // Option A internal: 70 adv, 30 dis
+        document.getElementById('slider-3-4').value = 40; // Option B internal: 40 adv, 60 dis
+        document.getElementById('slider-5-6').value = 60; // Advantages comparison: 60 A, 40 B
+        document.getElementById('slider-7-8').value = 30; // Disadvantages comparison: 30 A, 70 B
+        
+        // Update slider displays
+        const sliders = document.querySelectorAll('.comparison-slider');
+        sliders.forEach(slider => {
+            const event = new Event('input', { bubbles: true });
+            slider.dispatchEvent(event);
+        });
+        
+        // Calculate and show results
+        calculateResult();
+        console.log('Generated results section');
     }
 });
