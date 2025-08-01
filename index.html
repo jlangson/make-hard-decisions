@@ -212,7 +212,7 @@
                                        min="0" max="100" step="5" value="50"
                                        aria-describedby="slider-1-2-help"
                                        aria-valuetext="50 points to advantages, 50 points to disadvantages">
-                                <div id="slider-1-2-help" class="sr-only">Use arrow keys to adjust allocation. Left side gets more points as you move left, right side gets more points as you move right. Total always equals 100.</div>
+                                <div id="slider-1-2-help" class="sr-only">Use arrow keys to adjust allocation. Move toward a side to give it more points. Total always equals 100.</div>
                                 <div class="slider-values">
                                     <div class="value-control">
                                         <button class="value-btn minus" data-target="value-1" 
@@ -267,17 +267,32 @@
                                 <span class="slider-label-right">Disadvantages of <span id="dis-b-label-1">Option B</span></span>
                             </div>
                             <div class="slider-container">
-                                <input type="range" id="slider-3-4" class="comparison-slider" min="0" max="100" step="5" value="50">
+                                <label for="slider-3-4" class="sr-only">Allocate 100 points between advantages and disadvantages of Option B</label>
+                                <input type="range" id="slider-3-4" class="comparison-slider" 
+                                       min="0" max="100" step="5" value="50"
+                                       aria-describedby="slider-3-4-help"
+                                       aria-valuetext="50 points to advantages, 50 points to disadvantages">
+                                <div id="slider-3-4-help" class="sr-only">Use arrow keys to adjust allocation. Move toward a side to give it more points. Total always equals 100.</div>
                                 <div class="slider-values">
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-3">−</button>
-                                        <span id="value-3" class="slider-value-left editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-3">+</button>
+                                        <button class="value-btn minus" data-target="value-3" 
+                                                aria-label="Decrease points for advantages">−</button>
+                                        <span id="value-3" class="slider-value-left editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for advantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-3" 
+                                                aria-label="Increase points for advantages">+</button>
                                     </div>
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-4">−</button>
-                                        <span id="value-4" class="slider-value-right editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-4">+</button>
+                                        <button class="value-btn minus" data-target="value-4" 
+                                                aria-label="Decrease points for disadvantages">−</button>
+                                        <span id="value-4" class="slider-value-right editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for disadvantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-4" 
+                                                aria-label="Increase points for disadvantages">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -312,17 +327,32 @@
                                 <span class="slider-label-right">Advantages of <span id="adv-b-label-2">Option B</span></span>
                             </div>
                             <div class="slider-container">
-                                <input type="range" id="slider-5-6" class="comparison-slider" min="0" max="100" step="5" value="50">
+                                <label for="slider-5-6" class="sr-only">Allocate 100 points between advantages of both options</label>
+                                <input type="range" id="slider-5-6" class="comparison-slider" 
+                                       min="0" max="100" step="5" value="50"
+                                       aria-describedby="slider-5-6-help"
+                                       aria-valuetext="50 points to Option A advantages, 50 points to Option B advantages">
+                                <div id="slider-5-6-help" class="sr-only">Use arrow keys to adjust allocation. Move toward a side to give it more points. Total always equals 100.</div>
                                 <div class="slider-values">
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-5">−</button>
-                                        <span id="value-5" class="slider-value-left editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-5">+</button>
+                                        <button class="value-btn minus" data-target="value-5" 
+                                                aria-label="Decrease points for Option A advantages">−</button>
+                                        <span id="value-5" class="slider-value-left editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for Option A advantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-5" 
+                                                aria-label="Increase points for Option A advantages">+</button>
                                     </div>
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-6">−</button>
-                                        <span id="value-6" class="slider-value-right editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-6">+</button>
+                                        <button class="value-btn minus" data-target="value-6" 
+                                                aria-label="Decrease points for Option B advantages">−</button>
+                                        <span id="value-6" class="slider-value-right editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for Option B advantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-6" 
+                                                aria-label="Increase points for Option B advantages">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -357,17 +387,32 @@
                                 <span class="slider-label-right">Disadvantages of <span id="dis-b-label-2">Option B</span></span>
                             </div>
                             <div class="slider-container">
-                                <input type="range" id="slider-7-8" class="comparison-slider" min="0" max="100" step="5" value="50">
+                                <label for="slider-7-8" class="sr-only">Allocate 100 points between disadvantages of both options</label>
+                                <input type="range" id="slider-7-8" class="comparison-slider" 
+                                       min="0" max="100" step="5" value="50"
+                                       aria-describedby="slider-7-8-help"
+                                       aria-valuetext="50 points to Option A disadvantages, 50 points to Option B disadvantages">
+                                <div id="slider-7-8-help" class="sr-only">Use arrow keys to adjust allocation. Move toward a side to give it more points. Total always equals 100.</div>
                                 <div class="slider-values">
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-7">−</button>
-                                        <span id="value-7" class="slider-value-left editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-7">+</button>
+                                        <button class="value-btn minus" data-target="value-7" 
+                                                aria-label="Decrease points for Option A disadvantages">−</button>
+                                        <span id="value-7" class="slider-value-left editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for Option A disadvantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-7" 
+                                                aria-label="Increase points for Option A disadvantages">+</button>
                                     </div>
                                     <div class="value-control">
-                                        <button class="value-btn minus" data-target="value-8">−</button>
-                                        <span id="value-8" class="slider-value-right editable-value" contenteditable="true">50</span>
-                                        <button class="value-btn plus" data-target="value-8">+</button>
+                                        <button class="value-btn minus" data-target="value-8" 
+                                                aria-label="Decrease points for Option B disadvantages">−</button>
+                                        <span id="value-8" class="slider-value-right editable-value" 
+                                              contenteditable="true" role="spinbutton" 
+                                              aria-label="Points for Option B disadvantages" 
+                                              aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">50</span>
+                                        <button class="value-btn plus" data-target="value-8" 
+                                                aria-label="Increase points for Option B disadvantages">+</button>
                                     </div>
                                 </div>
                             </div>

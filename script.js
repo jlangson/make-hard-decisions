@@ -368,8 +368,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleSliderChange(slider, leftValue, rightValue) {
         const sliderValue = parseInt(slider.value);
-        const leftPoints = sliderValue;
-        const rightPoints = 100 - sliderValue;
+        // Reverse the logic: moving slider right increases the right value
+        const leftPoints = 100 - sliderValue;
+        const rightPoints = sliderValue;
         
         leftValue.textContent = leftPoints;
         rightValue.textContent = rightPoints;
@@ -384,7 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateSliderBackground(slider) {
         const value = slider.value;
-        const percentage = value;
+        // Reverse the background to match the new logic: right movement = more right color
+        const percentage = 100 - value;
         slider.style.background = `linear-gradient(to right, #2196f3 0%, #2196f3 ${percentage}%, #ff6b35 ${percentage}%, #ff6b35 100%)`;
     }
 
@@ -403,15 +405,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const slider56 = parseInt(document.getElementById('slider-5-6').value) || 50;
         const slider78 = parseInt(document.getElementById('slider-7-8').value) || 50;
 
-        // Convert slider values to circle values
-        const circle1 = slider12;        // Advantages A internal
-        const circle2 = 100 - slider12;  // Disadvantages A internal
-        const circle3 = slider34;        // Advantages B internal
-        const circle4 = 100 - slider34;  // Disadvantages B internal
-        const circle5 = slider56;        // Advantages A vs B
-        const circle6 = 100 - slider56;  // Advantages B vs A
-        const circle7 = slider78;        // Disadvantages A vs B
-        const circle8 = 100 - slider78;  // Disadvantages B vs A
+        // Convert slider values to circle values (reversed logic)
+        const circle1 = 100 - slider12;  // Advantages A internal
+        const circle2 = slider12;        // Disadvantages A internal
+        const circle3 = 100 - slider34;  // Advantages B internal
+        const circle4 = slider34;        // Disadvantages B internal
+        const circle5 = 100 - slider56;  // Advantages A vs B
+        const circle6 = slider56;        // Advantages B vs A
+        const circle7 = 100 - slider78;  // Disadvantages A vs B
+        const circle8 = slider78;        // Disadvantages B vs A
 
         // Calculate final scores using PDF methodology
         // Option A: (circle1 + circle5) - (circle2 + circle7)
@@ -1045,11 +1047,11 @@ Made with Decision Helper 🧠✨`;
             const slider = document.getElementById(sliderId);
             const otherValueElement = document.getElementById(otherValueId);
             
-            // Update slider position
+            // Update slider position (reverse logic: left value controls 100-slider, right value controls slider)
             if (isLeftValue) {
-                slider.value = newValue;
-            } else {
                 slider.value = 100 - newValue;
+            } else {
+                slider.value = newValue;
             }
             
             // Update other value to maintain balance
@@ -1173,8 +1175,9 @@ Made with Decision Helper 🧠✨`;
                     const rightValue = document.getElementById(rightValueId);
                     
                     if (leftValue && rightValue) {
-                        leftValue.textContent = value;
-                        rightValue.textContent = 100 - value;
+                        // Use the reversed logic for display values
+                        leftValue.textContent = 100 - value;
+                        rightValue.textContent = value;
                     }
                 }
             });
@@ -1492,8 +1495,9 @@ Made with Decision Helper 🧠✨`;
                 const rightValue = document.getElementById(rightValueId);
                 
                 if (leftValue && rightValue) {
-                    leftValue.textContent = value;
-                    rightValue.textContent = 100 - value;
+                    // Use the reversed logic for display values
+                    leftValue.textContent = 100 - value;
+                    rightValue.textContent = value;
                 }
             }
         });
