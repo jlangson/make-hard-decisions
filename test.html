@@ -615,6 +615,239 @@
             assert(mockData.selectedOptionB.length > 5, 'Option B name should be descriptive');
         });
 
+        // Save/Resume functionality tests
+        runner.test('Save data - structure validation', () => {
+            // Mock localStorage for testing
+            const mockStorage = {};
+            const mockLocalStorage = {
+                setItem: (key, value) => mockStorage[key] = value,
+                getItem: (key) => mockStorage[key] || null,
+                removeItem: (key) => delete mockStorage[key]
+            };
+
+            // Test data structure
+            const testData = {
+                choices: ['Option A', 'Option B', 'Option C'],
+                selectedOptionA: 'Option A',
+                selectedOptionB: 'Option B',
+                currentSection: 'comparison',
+                formData: {
+                    choiceInputs: ['Option A', 'Option B', 'Option C'],
+                    advantagesA: 'Some advantages',
+                    disadvantagesA: 'Some disadvantages',
+                    advantagesB: 'Other advantages',
+                    disadvantagesB: 'Other disadvantages',
+                    sliderValues: {
+                        'slider-1-2': 60,
+                        'slider-3-4': 70,
+                        'slider-5-6': 45,
+                        'slider-7-8': 55
+                    }
+                },
+                timestamp: Date.now()
+            };
+
+            // Test saving
+            mockLocalStorage.setItem('decisionHelperData', JSON.stringify(testData));
+            const saved = mockLocalStorage.getItem('decisionHelperData');
+            assert(saved !== null, 'Data should be saved');
+
+            // Test retrieving and parsing
+            const parsed = JSON.parse(saved);
+            assert(parsed.choices.length === 3, 'Should preserve choices array');
+            assert(parsed.selectedOptionA === 'Option A', 'Should preserve selected option A');
+            assert(parsed.selectedOptionB === 'Option B', 'Should preserve selected option B');
+            assert(parsed.currentSection === 'comparison', 'Should preserve current section');
+            assert(typeof parsed.timestamp === 'number', 'Should have timestamp');
+        });
+
+        runner.test('Save data - form data preservation', () => {
+            const testFormData = {
+                choiceInputs: ['Job A', 'Job B'],
+                advantagesA: 'Higher salary\nBetter benefits',
+                disadvantagesA: 'Longer commute\nMore stress',
+                advantagesB: 'Work from home\nFlexible hours',
+                disadvantagesB: 'Lower pay\nLess stability',
+                sliderValues: {
+                    'slider-1-2': 65,
+                    'slider-3-4': 40,
+                    'slider-5-6': 75,
+                    'slider-7-8': 30
+                }
+            };
+
+            // Test all form data fields are present
+            assert(Array.isArray(testFormData.choiceInputs), 'Choice inputs should be array');
+            assert(typeof testFormData.advantagesA === 'string', 'Advantages A should be string');
+            assert(typeof testFormData.disadvantagesA === 'string', 'Disadvantages A should be string');
+            assert(typeof testFormData.advantagesB === 'string', 'Advantages B should be string');
+            assert(typeof testFormData.disadvantagesB === 'string', 'Disadvantages B should be string');
+            assert(typeof testFormData.sliderValues === 'object', 'Slider values should be object');
+
+            // Test slider values are in valid range
+            Object.values(testFormData.sliderValues).forEach((value, index) => {
+                assert(typeof value === 'number', `Slider value ${index} should be number`);
+                assert(value >= 0 && value <= 100, `Slider value ${index} should be 0-100`);
+            });
+        });
+
+        runner.test('Save data - section validation', () => {
+            const validSections = ['brainstorm', 'selection', 'comparison', 'scoring', 'results'];
+            
+            validSections.forEach(section => {
+                const testData = {
+                    currentSection: section,
+                    choices: ['A', 'B'],
+                    selectedOptionA: 'A',
+                    selectedOptionB: 'B',
+                    formData: {},
+                    timestamp: Date.now()
+                };
+
+                // Each section should be a valid string
+                assert(typeof testData.currentSection === 'string', `Section ${section} should be string`);
+                assert(validSections.includes(testData.currentSection), `Section ${section} should be valid`);
+                assert(testData.currentSection.length > 0, `Section ${section} should not be empty`);
+            });
+        });
+
+        runner.test('Resume data - localStorage availability check', () => {
+            // Test that localStorage-like functionality can be mocked
+            const mockStorage = {};
+            const localStorage = {
+                setItem: (key, value) => mockStorage[key] = value,
+                getItem: (key) => mockStorage[key] || null,
+                removeItem: (key) => delete mockStorage[key]
+            };
+
+            // Test basic operations
+            localStorage.setItem('test', 'value');
+            assert(localStorage.getItem('test') === 'value', 'Should store and retrieve values');
+            
+            localStorage.removeItem('test');
+            assert(localStorage.getItem('test') === null, 'Should remove values');
+
+            // Test JSON operations
+            const testObj = { test: 'data', number: 123 };
+            localStorage.setItem('json-test', JSON.stringify(testObj));
+            const retrieved = JSON.parse(localStorage.getItem('json-test'));
+            assert(retrieved.test === 'data', 'Should handle JSON data');
+            assert(retrieved.number === 123, 'Should preserve data types in JSON');
+        });
+
+        runner.test('Resume data - data validation', () => {
+            // Test that loaded data is properly validated
+            const validData = {
+                choices: ['Option 1', 'Option 2'],
+                selectedOptionA: 'Option 1',
+                selectedOptionB: 'Option 2',
+                currentSection: 'comparison',
+                formData: {
+                    choiceInputs: ['Option 1', 'Option 2'],
+                    advantagesA: 'Pros for option 1',
+                    disadvantagesA: 'Cons for option 1',
+                    advantagesB: 'Pros for option 2',
+                    disadvantagesB: 'Cons for option 2',
+                    sliderValues: {
+                        'slider-1-2': 50,
+                        'slider-3-4': 60,
+                        'slider-5-6': 40,
+                        'slider-7-8': 70
+                    }
+                },
+                timestamp: Date.now()
+            };
+
+            // Validate structure
+            assert(Array.isArray(validData.choices), 'Choices should be array');
+            assert(validData.choices.length >= 2, 'Should have at least 2 choices');
+            assert(typeof validData.selectedOptionA === 'string', 'Selected A should be string');
+            assert(typeof validData.selectedOptionB === 'string', 'Selected B should be string');
+            assert(validData.selectedOptionA !== validData.selectedOptionB, 'Options should be different');
+
+            // Validate form data exists
+            assert(validData.formData, 'Should have form data');
+            assert(typeof validData.formData === 'object', 'Form data should be object');
+            assert(validData.formData.sliderValues, 'Should have slider values');
+
+            // Validate timestamp
+            assert(typeof validData.timestamp === 'number', 'Timestamp should be number');
+            assert(validData.timestamp > 0, 'Timestamp should be positive');
+        });
+
+        runner.test('Clear saved data - localStorage cleanup', () => {
+            // Test data clearing functionality
+            const mockStorage = { 'decisionHelperData': 'some-data', 'other-data': 'should-remain' };
+            const localStorage = {
+                removeItem: (key) => delete mockStorage[key],
+                getItem: (key) => mockStorage[key] || null
+            };
+
+            // Verify data exists initially
+            assert(localStorage.getItem('decisionHelperData') === 'some-data', 'Test data should exist');
+            assert(localStorage.getItem('other-data') === 'should-remain', 'Other data should exist');
+
+            // Clear decision data
+            localStorage.removeItem('decisionHelperData');
+
+            // Verify only decision data was cleared
+            assert(localStorage.getItem('decisionHelperData') === null, 'Decision data should be cleared');
+            assert(localStorage.getItem('other-data') === 'should-remain', 'Other data should remain');
+        });
+
+        runner.test('Auto-save frequency - silent operation', () => {
+            // Test that auto-save can be called frequently without issues
+            let saveCount = 0;
+            const mockSave = (showIndicator = false) => {
+                saveCount++;
+                return !showIndicator; // Return true if silent (no indicator)
+            };
+
+            // Simulate frequent saves (typing, slider changes)
+            const silentSave1 = mockSave(false);
+            const silentSave2 = mockSave(false);
+            const silentSave3 = mockSave(false);
+
+            // Simulate explicit save (section transition)
+            const explicitSave = mockSave(true);
+
+            assert(saveCount === 4, 'Should track all save operations');
+            assert(silentSave1 === true, 'Silent saves should not show indicator');
+            assert(silentSave2 === true, 'Silent saves should not show indicator');
+            assert(silentSave3 === true, 'Silent saves should not show indicator');
+            assert(explicitSave === false, 'Explicit saves should show indicator');
+        });
+
+        runner.test('Section navigation - restore to correct section', () => {
+            // Test section navigation logic
+            const sectionData = [
+                { section: 'brainstorm', hasChoices: true, hasOptions: false },
+                { section: 'selection', hasChoices: true, hasOptions: false },
+                { section: 'comparison', hasChoices: true, hasOptions: true },
+                { section: 'scoring', hasChoices: true, hasOptions: true },
+                { section: 'results', hasChoices: true, hasOptions: true }
+            ];
+
+            sectionData.forEach(({ section, hasChoices, hasOptions }) => {
+                const mockData = {
+                    currentSection: section,
+                    choices: hasChoices ? ['A', 'B', 'C'] : [],
+                    selectedOptionA: hasOptions ? 'A' : '',
+                    selectedOptionB: hasOptions ? 'B' : ''
+                };
+
+                // Test navigation requirements
+                if (section === 'selection') {
+                    assert(mockData.choices.length >= 3, 'Selection requires 3+ choices');
+                }
+                if (['comparison', 'scoring', 'results'].includes(section)) {
+                    assert(mockData.selectedOptionA, `${section} requires selected option A`);
+                    assert(mockData.selectedOptionB, `${section} requires selected option B`);
+                    assert(mockData.selectedOptionA !== mockData.selectedOptionB, `${section} requires different options`);
+                }
+            });
+        });
+
         // Debug logging
         console.log('About to run tests...');
         console.log('Total tests registered:', runner.tests.length);

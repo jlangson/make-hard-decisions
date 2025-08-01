@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('About to initialize app...');
     init();
     
+    // Load saved data if available
+    loadSavedData();
+    
     // Check for dev mode hash navigation
     console.log('About to check dev mode hash...');
     checkDevModeHash();
@@ -78,6 +81,13 @@ document.addEventListener('DOMContentLoaded', function() {
         choicesContainer.addEventListener('click', handleRemoveChoice);
         choicesContainer.addEventListener('keydown', handleChoiceKeydown);
         
+        // Auto-save on textarea changes
+        document.addEventListener('input', (event) => {
+            if (event.target.tagName === 'TEXTAREA') {
+                saveData();
+            }
+        });
+        
         // Handle plus/minus buttons and editable values
         document.addEventListener('click', handleValueButtonClick);
         document.addEventListener('blur', handleEditableValueBlur, true);
@@ -102,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleChoiceInput(event) {
         if (event.target.classList.contains('choice')) {
             updateChoices();
+            saveData();
         }
     }
 
@@ -111,6 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (choiceInputs.length > 1) {
                 event.target.parentElement.remove();
                 updateChoices();
+                saveData();
             }
         }
     }
@@ -157,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('advantages-b').value = '';
             document.getElementById('disadvantages-b').value = '';
             
+            saveData(true);
             showSection(comparisonSection);
             return;
         }
@@ -220,6 +233,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('advantages-b').value = '';
         document.getElementById('disadvantages-b').value = '';
 
+        saveData(true);
         showSection(comparisonSection);
     }
 
@@ -327,6 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         leftValue.textContent = leftPoints;
         rightValue.textContent = rightPoints;
+        saveData();
     }
 
     function updateSliderBackground(slider) {
@@ -523,6 +538,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function universalStartOver() {
+        // Clear saved data
+        clearSavedData();
+        
         // Clear all form data first
         document.querySelectorAll('input, textarea').forEach(element => {
             element.value = '';
@@ -972,5 +990,216 @@ Made with Decision Helper 🧠✨`;
             // Update slider background
             updateSliderBackground(slider);
         }
+    }
+
+    // Save/Load functionality
+    function saveData(showIndicator = false) {
+        const data = {
+            choices: [...choices],
+            selectedOptionA,
+            selectedOptionB,
+            currentSection: getCurrentSection(),
+            formData: {
+                choiceInputs: Array.from(document.querySelectorAll('.choice')).map(input => input.value),
+                advantagesA: document.getElementById('advantages-a')?.value || '',
+                disadvantagesA: document.getElementById('disadvantages-a')?.value || '',
+                advantagesB: document.getElementById('advantages-b')?.value || '',
+                disadvantagesB: document.getElementById('disadvantages-b')?.value || '',
+                sliderValues: {
+                    'slider-1-2': document.getElementById('slider-1-2')?.value || 50,
+                    'slider-3-4': document.getElementById('slider-3-4')?.value || 50,
+                    'slider-5-6': document.getElementById('slider-5-6')?.value || 50,
+                    'slider-7-8': document.getElementById('slider-7-8')?.value || 50
+                }
+            },
+            timestamp: Date.now()
+        };
+        
+        try {
+            localStorage.setItem('decisionHelperData', JSON.stringify(data));
+            
+            // Only show indicator if explicitly requested
+            if (showIndicator) {
+                showSaveIndicator();
+            }
+        } catch (e) {
+            console.warn('Could not save data to localStorage:', e);
+        }
+    }
+
+    function loadSavedData() {
+        try {
+            const savedData = localStorage.getItem('decisionHelperData');
+            if (!savedData) return;
+
+            const data = JSON.parse(savedData);
+
+            // Restore choices array
+            choices = [...data.choices];
+            selectedOptionA = data.selectedOptionA;
+            selectedOptionB = data.selectedOptionB;
+
+            // Restore form inputs
+            if (data.formData.choiceInputs.length > 0) {
+                // Add enough choice inputs
+                while (document.querySelectorAll('.choice').length < data.formData.choiceInputs.length) {
+                    addChoice();
+                }
+
+                // Fill choice inputs
+                const choiceInputs = document.querySelectorAll('.choice');
+                data.formData.choiceInputs.forEach((value, index) => {
+                    if (choiceInputs[index]) {
+                        choiceInputs[index].value = value;
+                    }
+                });
+                updateChoices();
+            }
+
+            // Restore comparison textareas
+            if (data.formData.advantagesA) document.getElementById('advantages-a').value = data.formData.advantagesA;
+            if (data.formData.disadvantagesA) document.getElementById('disadvantages-a').value = data.formData.disadvantagesA;
+            if (data.formData.advantagesB) document.getElementById('advantages-b').value = data.formData.advantagesB;
+            if (data.formData.disadvantagesB) document.getElementById('disadvantages-b').value = data.formData.disadvantagesB;
+
+            // Restore slider values
+            Object.entries(data.formData.sliderValues).forEach(([sliderId, value]) => {
+                const slider = document.getElementById(sliderId);
+                if (slider) {
+                    slider.value = value;
+                    updateSliderBackground(slider);
+                    
+                    // Update corresponding value displays
+                    const parts = sliderId.split('-'); // ['slider', '1', '2']
+                    const leftValueId = `value-${parts[1]}`;
+                    const rightValueId = `value-${parts[2]}`;
+                    const leftValue = document.getElementById(leftValueId);
+                    const rightValue = document.getElementById(rightValueId);
+                    
+                    if (leftValue && rightValue) {
+                        leftValue.textContent = value;
+                        rightValue.textContent = 100 - value;
+                    }
+                }
+            });
+
+            // Navigate to the correct section
+            navigateToSection(data.currentSection);
+            
+            // Show restore notification
+            showRestoreNotification();
+
+        } catch (e) {
+            console.warn('Could not load saved data:', e);
+            localStorage.removeItem('decisionHelperData');
+        }
+    }
+
+    function getCurrentSection() {
+        if (!brainstormSection.classList.contains('hidden')) return 'brainstorm';
+        if (!selectionSection.classList.contains('hidden')) return 'selection';
+        if (!comparisonSection.classList.contains('hidden')) return 'comparison';
+        if (!scoringSection.classList.contains('hidden')) return 'scoring';
+        if (!resultsSection.classList.contains('hidden')) return 'results';
+        return 'brainstorm';
+    }
+
+    function navigateToSection(sectionName) {
+        switch (sectionName) {
+            case 'selection':
+                if (choices.length >= 3) {
+                    populateSelectors();
+                    showSection(selectionSection);
+                }
+                break;
+            case 'comparison':
+                if (selectedOptionA && selectedOptionB) {
+                    document.getElementById('option-a-title').textContent = selectedOptionA;
+                    document.getElementById('option-b-title').textContent = selectedOptionB;
+                    showSection(comparisonSection);
+                }
+                break;
+            case 'scoring':
+                if (selectedOptionA && selectedOptionB) {
+                    proceedToScoring();
+                }
+                break;
+            case 'results':
+                if (selectedOptionA && selectedOptionB) {
+                    calculateResult();
+                }
+                break;
+            default:
+                showSection(brainstormSection);
+        }
+    }
+
+    function showSaveIndicator() {
+        // Remove existing indicator
+        const existing = document.getElementById('save-indicator');
+        if (existing) existing.remove();
+
+        const indicator = document.createElement('div');
+        indicator.id = 'save-indicator';
+        indicator.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+        indicator.textContent = '✓ Progress saved';
+        document.body.appendChild(indicator);
+
+        // Fade in and out
+        setTimeout(() => indicator.style.opacity = '1', 10);
+        setTimeout(() => indicator.style.opacity = '0', 1500);
+        setTimeout(() => indicator.remove(), 1800);
+    }
+
+    function showRestoreNotification() {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        `;
+        notification.innerHTML = `
+            <div style="margin-bottom: 8px;">📂 Previous progress restored</div>
+            <button id="clear-saved-btn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">
+                Clear & Start Fresh
+            </button>
+        `;
+        document.body.appendChild(notification);
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            if (document.body.contains(notification)) {
+                notification.remove();
+            }
+        }, 5000);
+
+        // Clear saved data button
+        document.getElementById('clear-saved-btn').addEventListener('click', () => {
+            localStorage.removeItem('decisionHelperData');
+            universalStartOver();
+        });
+    }
+
+    function clearSavedData() {
+        localStorage.removeItem('decisionHelperData');
     }
 });
