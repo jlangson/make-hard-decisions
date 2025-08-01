@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let resultsHTML = `
             <div class="result-item" style="text-align: center; background: linear-gradient(135deg, ${decisionColor}20, ${decisionColor}10); border-left-color: ${decisionColor};">
                 <h3 style="color: ${decisionColor};">${decisionType}</h3>
-                ${winner ? `<p><strong>Recommended Choice:</strong> ${winner}</p>` : '<p><strong>Decision is too close to call</strong></p>'}
+                ${winner ? `<p><strong>Recommended Choice:</strong> ${winner}<br><span style="font-size: 1.2rem; font-weight: 600; color: ${decisionColor};">${winner === data.optionA ? optionAScore : optionBScore} points</span></p>` : '<p><strong>Decision is too close to call</strong></p>'}
             </div>
 
             <div class="result-item ${winner === data.optionA ? 'winner' : ''}">
@@ -407,10 +407,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p><strong>Total Points:</strong> ${optionAScore} (Range: -200 to +200)</p>
                 <p><strong>Advantages Total:</strong> ${circles.circle9} points</p>
                 <p><strong>Disadvantages Total:</strong> ${circles.circle10} points</p>
-                <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                    <p>Internal: ${circles.circle1} adv, ${circles.circle2} dis</p>
-                    <p>vs ${data.optionB}: ${circles.circle5} adv, ${circles.circle7} dis</p>
-                </div>
             </div>
             
             <div class="result-item ${winner === data.optionB ? 'winner' : ''}">
@@ -418,10 +414,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p><strong>Total Points:</strong> ${optionBScore} (Range: -200 to +200)</p>
                 <p><strong>Advantages Total:</strong> ${circles.circle11} points</p>
                 <p><strong>Disadvantages Total:</strong> ${circles.circle12} points</p>
-                <div style="margin-top: 10px; font-size: 0.9rem; color: #666;">
-                    <p>Internal: ${circles.circle3} adv, ${circles.circle4} dis</p>
-                    <p>vs ${data.optionA}: ${circles.circle6} adv, ${circles.circle8} dis</p>
-                </div>
             </div>
             
             <details style="margin-top: 20px;">
