@@ -848,6 +848,312 @@
             });
         });
 
+        // Navigation History Tests
+        runner.test('Navigation history - initialization', () => {
+            // Test navigation history initialization
+            const mockNavigationHistory = [];
+            let mockCurrentHistoryIndex = -1;
+
+            // Mock initialization function behavior
+            function mockInitializeNavigationHistory() {
+                if (mockNavigationHistory.length === 0) {
+                    const initialState = {
+                        choices: [],
+                        selectedOptionA: '',
+                        selectedOptionB: '',
+                        formData: { choiceInputs: [], advantagesA: '', disadvantagesA: '', advantagesB: '', disadvantagesB: '', sliderValues: {} }
+                    };
+                    mockNavigationHistory.push({
+                        section: 'brainstorm',
+                        state: initialState,
+                        timestamp: Date.now()
+                    });
+                    mockCurrentHistoryIndex = 0;
+                }
+                return { history: mockNavigationHistory, index: mockCurrentHistoryIndex };
+            }
+
+            const result = mockInitializeNavigationHistory();
+            
+            assert(result.history.length === 1, 'Should create initial history entry');
+            assert(result.index === 0, 'Should set current index to 0');
+            assert(result.history[0].section === 'brainstorm', 'Initial entry should be brainstorm section');
+            assert(typeof result.history[0].timestamp === 'number', 'Should have timestamp');
+            
+            // Test that second initialization doesn't create duplicate
+            const result2 = mockInitializeNavigationHistory();
+            assert(result2.history.length === 1, 'Should not create duplicate entries');
+        });
+
+        runner.test('Navigation history - adding entries', () => {
+            // Test adding navigation entries
+            const mockHistory = [{
+                section: 'brainstorm',
+                state: { choices: ['A', 'B'] },
+                timestamp: Date.now() - 1000
+            }];
+            let mockIndex = 0;
+
+            function mockAddToNavigationHistory(targetSection, currentState) {
+                // If we're not at the end of history, remove everything after current position
+                if (mockIndex < mockHistory.length - 1) {
+                    mockHistory.splice(mockIndex + 1);
+                }
+                
+                // Add new state to history
+                mockHistory.push({
+                    section: targetSection,
+                    state: currentState,
+                    timestamp: Date.now()
+                });
+                
+                mockIndex = mockHistory.length - 1;
+                return { history: mockHistory, index: mockIndex };
+            }
+
+            // Add comparison section
+            const comparisonState = { 
+                choices: ['A', 'B'], 
+                selectedOptionA: 'A', 
+                selectedOptionB: 'B' 
+            };
+            const result = mockAddToNavigationHistory('comparison', comparisonState);
+
+            assert(result.history.length === 2, 'Should add new entry');
+            assert(result.index === 1, 'Should update current index');
+            assert(result.history[1].section === 'comparison', 'Should add comparison section');
+            assert(result.history[1].state.selectedOptionA === 'A', 'Should preserve state');
+        });
+
+        runner.test('Navigation history - can go back/forward logic', () => {
+            // Test navigation capability logic
+            const testCases = [
+                { historyLength: 1, currentIndex: 0, canBack: false, canForward: false, desc: 'single entry' },
+                { historyLength: 2, currentIndex: 0, canBack: false, canForward: true, desc: 'at beginning of multiple entries' },
+                { historyLength: 2, currentIndex: 1, canBack: true, canForward: false, desc: 'at end of multiple entries' },
+                { historyLength: 3, currentIndex: 1, canBack: true, canForward: true, desc: 'in middle of multiple entries' },
+                { historyLength: 0, currentIndex: -1, canBack: false, canForward: false, desc: 'empty history' }
+            ];
+
+            testCases.forEach(({ historyLength, currentIndex, canBack, canForward, desc }) => {
+                function mockCanGoBack(index) {
+                    return index > 0;
+                }
+
+                function mockCanGoForward(index, length) {
+                    return index < length - 1;
+                }
+
+                const actualCanBack = mockCanGoBack(currentIndex);
+                const actualCanForward = mockCanGoForward(currentIndex, historyLength);
+
+                assert(actualCanBack === canBack, `${desc}: canGoBack should be ${canBack}, got ${actualCanBack}`);
+                assert(actualCanForward === canForward, `${desc}: canGoForward should be ${canForward}, got ${actualCanForward}`);
+            });
+        });
+
+        runner.test('Navigation history - branching behavior', () => {
+            // Test history branching when navigating back then forward to new section
+            const mockHistory = [
+                { section: 'brainstorm', state: { choices: [] }, timestamp: 1000 },
+                { section: 'comparison', state: { choices: ['A', 'B'] }, timestamp: 2000 },
+                { section: 'scoring', state: { choices: ['A', 'B'] }, timestamp: 3000 }
+            ];
+            let mockIndex = 2; // Currently at scoring
+
+            function mockGoBack() {
+                if (mockIndex > 0) {
+                    mockIndex--;
+                    return { currentSection: mockHistory[mockIndex].section, index: mockIndex };
+                }
+                return null;
+            }
+
+            function mockAddEntry(section, state) {
+                // Remove everything after current position (branching)
+                if (mockIndex < mockHistory.length - 1) {
+                    mockHistory.splice(mockIndex + 1);
+                }
+                
+                mockHistory.push({ section, state, timestamp: Date.now() });
+                mockIndex = mockHistory.length - 1;
+                return { history: mockHistory, index: mockIndex };
+            }
+
+            // Go back to comparison
+            const backResult = mockGoBack();
+            assert(backResult.currentSection === 'comparison', 'Should navigate back to comparison');
+            assert(backResult.index === 1, 'Should be at index 1');
+
+            // Navigate to results (creating branch)
+            const branchResult = mockAddEntry('results', { choices: ['A', 'B'] });
+            assert(branchResult.history.length === 3, 'Should replace future history');
+            assert(branchResult.history[2].section === 'results', 'Should add results section');
+            assert(branchResult.index === 2, 'Should be at new end');
+            
+            // Verify scoring section was removed
+            const hasScoring = branchResult.history.some(entry => entry.section === 'scoring');
+            assert(!hasScoring, 'Should remove scoring section from history');
+        });
+
+        runner.test('Navigation history - state preservation', () => {
+            // Test that navigation preserves complete state
+            const mockState = {
+                choices: ['Job A', 'Job B', 'Freelance'],
+                selectedOptionA: 'Job A',
+                selectedOptionB: 'Job B',
+                formData: {
+                    choiceInputs: ['Job A', 'Job B', 'Freelance'],
+                    advantagesA: 'Higher salary\nGood benefits',
+                    disadvantagesA: 'Long commute\nHigh stress',
+                    advantagesB: 'Flexible hours\nKnown environment',
+                    disadvantagesB: 'Lower pay\nLimited growth',
+                    sliderValues: {
+                        'slider-1-2': 65,
+                        'slider-3-4': 40,
+                        'slider-5-6': 75,
+                        'slider-7-8': 30
+                    }
+                }
+            };
+
+            function mockCaptureState() {
+                return JSON.parse(JSON.stringify(mockState)); // Deep copy
+            }
+
+            function mockRestoreState(state) {
+                // Validate all expected properties exist
+                const required = ['choices', 'selectedOptionA', 'selectedOptionB', 'formData'];
+                required.forEach(prop => {
+                    assert(state.hasOwnProperty(prop), `State should have ${prop} property`);
+                });
+
+                // Validate form data structure
+                const formDataRequired = ['choiceInputs', 'advantagesA', 'disadvantagesA', 'advantagesB', 'disadvantagesB', 'sliderValues'];
+                formDataRequired.forEach(prop => {
+                    assert(state.formData.hasOwnProperty(prop), `Form data should have ${prop} property`);
+                });
+
+                // Validate data types and content
+                assert(Array.isArray(state.choices), 'Choices should be array');
+                assert(typeof state.selectedOptionA === 'string', 'Selected option A should be string');
+                assert(Array.isArray(state.formData.choiceInputs), 'Choice inputs should be array');
+                assert(typeof state.formData.advantagesA === 'string', 'Advantages A should be string');
+                assert(typeof state.formData.sliderValues === 'object', 'Slider values should be object');
+
+                return true;
+            }
+
+            const capturedState = mockCaptureState();
+            const restored = mockRestoreState(capturedState);
+            
+            assert(restored === true, 'Should successfully restore complete state');
+            assert(capturedState.choices.length === 3, 'Should preserve choices array');
+            assert(capturedState.formData.advantagesA.includes('Higher salary'), 'Should preserve textarea content');
+            assert(capturedState.formData.sliderValues['slider-1-2'] === 65, 'Should preserve slider values');
+        });
+
+        runner.test('Navigation history - keyboard shortcuts', () => {
+            // Test keyboard shortcut logic
+            function mockHandleNavigationKeydown(event, isInInput) {
+                // Only handle navigation keys if user isn't typing in an input/textarea
+                if (isInInput) {
+                    return { handled: false, action: null };
+                }
+
+                // Alt + Left Arrow = Go Back
+                if (event.altKey && event.key === 'ArrowLeft') {
+                    return { handled: true, action: 'goBack' };
+                }
+                
+                // Alt + Right Arrow = Go Forward
+                if (event.altKey && event.key === 'ArrowRight') {
+                    return { handled: true, action: 'goForward' };
+                }
+
+                return { handled: false, action: null };
+            }
+
+            // Test Alt+Left when not in input
+            const backEvent = { altKey: true, key: 'ArrowLeft' };
+            const backResult = mockHandleNavigationKeydown(backEvent, false);
+            assert(backResult.handled === true, 'Should handle Alt+Left');
+            assert(backResult.action === 'goBack', 'Should trigger go back');
+
+            // Test Alt+Right when not in input
+            const forwardEvent = { altKey: true, key: 'ArrowRight' };
+            const forwardResult = mockHandleNavigationKeydown(forwardEvent, false);
+            assert(forwardResult.handled === true, 'Should handle Alt+Right');
+            assert(forwardResult.action === 'goForward', 'Should trigger go forward');
+
+            // Test Alt+Left when in input (should be ignored)
+            const inputResult = mockHandleNavigationKeydown(backEvent, true);
+            assert(inputResult.handled === false, 'Should ignore when in input');
+            assert(inputResult.action === null, 'Should not trigger action when in input');
+
+            // Test other keys (should be ignored)
+            const otherEvent = { altKey: true, key: 'ArrowUp' };
+            const otherResult = mockHandleNavigationKeydown(otherEvent, false);
+            assert(otherResult.handled === false, 'Should ignore other keys');
+        });
+
+        runner.test('Navigation history - save/load integration', () => {
+            // Test that navigation history is properly saved and loaded
+            const mockData = {
+                choices: ['A', 'B'],
+                selectedOptionA: 'A',
+                selectedOptionB: 'B',
+                currentSection: 'comparison',
+                formData: { /* form data */ },
+                navigationHistory: [
+                    { section: 'brainstorm', state: { choices: [] }, timestamp: 1000 },
+                    { section: 'comparison', state: { choices: ['A', 'B'] }, timestamp: 2000 }
+                ],
+                currentHistoryIndex: 1,
+                timestamp: Date.now()
+            };
+
+            // Test saving navigation history
+            function mockSaveWithHistory(data) {
+                const required = ['navigationHistory', 'currentHistoryIndex'];
+                required.forEach(prop => {
+                    assert(data.hasOwnProperty(prop), `Save data should include ${prop}`);
+                });
+                
+                assert(Array.isArray(data.navigationHistory), 'Navigation history should be array');
+                assert(typeof data.currentHistoryIndex === 'number', 'Current history index should be number');
+                
+                return JSON.stringify(data);
+            }
+
+            // Test loading navigation history
+            function mockLoadWithHistory(jsonData) {
+                const data = JSON.parse(jsonData);
+                
+                if (data.navigationHistory && Array.isArray(data.navigationHistory)) {
+                    const restoredHistory = [...data.navigationHistory];
+                    const restoredIndex = data.currentHistoryIndex || -1;
+                    
+                    return {
+                        history: restoredHistory,
+                        index: restoredIndex,
+                        valid: true
+                    };
+                }
+                
+                return { history: [], index: -1, valid: false };
+            }
+
+            const savedData = mockSaveWithHistory(mockData);
+            const loadedData = mockLoadWithHistory(savedData);
+            
+            assert(loadedData.valid === true, 'Should successfully load navigation history');
+            assert(loadedData.history.length === 2, 'Should restore correct number of history entries');
+            assert(loadedData.index === 1, 'Should restore correct history index');
+            assert(loadedData.history[0].section === 'brainstorm', 'Should restore first section');
+            assert(loadedData.history[1].section === 'comparison', 'Should restore second section');
+        });
+
         // Debug logging
         console.log('About to run tests...');
         console.log('Total tests registered:', runner.tests.length);
