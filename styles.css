@@ -139,7 +139,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     background: white;
-    border-radius: 15px;
+    border-radius: 15px 15px 0 0;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -699,7 +699,7 @@ h4 {
 @media (max-width: 768px) {
     .container {
         margin: 10px;
-        border-radius: 10px;
+        border-radius: 10px 10px 0 0;
     }
     
     .section {
@@ -783,6 +783,22 @@ h4 {
     .slider-value-right {
         text-align: center;
         flex: 1;
+    }
+    
+    /* Attribution footer mobile styles */
+    .attribution-footer {
+        padding: 15px;
+        margin: -10px 10px 10px 10px;
+        border-radius: 0 0 10px 10px;
+    }
+    
+    .attribution-content {
+        padding: 0;
+    }
+    
+    .attribution-footer p {
+        font-size: 0.85rem;
+        line-height: 1.6;
     }
 }
 
@@ -959,6 +975,67 @@ h4 {
         width: 95%;
         max-width: none;
     }
+    
+    /* Attribution footer small mobile styles */
+    .attribution-footer {
+        padding: 12px;
+        margin: -10px 10px 10px 10px;
+    }
+    
+    .attribution-content {
+        padding: 0;
+    }
+    
+    .attribution-footer p {
+        font-size: 0.8rem;
+        line-height: 1.7;
+    }
+}
+
+/* Attribution Footer */
+.attribution-footer {
+    max-width: 1200px;
+    margin: -15px auto 0 auto;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 15px 15px;
+    padding: 25px 20px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.attribution-content {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.attribution-footer p {
+    margin: 0;
+    color: #4a5568;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.attribution-footer a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.attribution-footer a:hover {
+    color: #5a67d8;
+    text-decoration: underline;
+}
+
+.attribution-footer a:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+    border-radius: 2px;
 }
 
 /* Value Controls with Plus/Minus Buttons */
@@ -1216,5 +1293,32 @@ h4 {
     .container select, 
     .container textarea {
         display: none;
+    }
+    
+    /* Attribution footer print styles */
+    .attribution-footer {
+        display: block;
+        background: white;
+        border-top: 1pt solid #ccc;
+        padding: 15pt 0;
+        margin-top: 20pt;
+        text-align: center;
+        page-break-inside: avoid;
+    }
+    
+    .attribution-content {
+        padding: 0 15pt;
+    }
+    
+    .attribution-footer p {
+        font-size: 10pt;
+        color: #666;
+        margin: 0;
+        line-height: 1.4;
+    }
+    
+    .attribution-footer a {
+        color: #000;
+        text-decoration: underline;
     }
 }
