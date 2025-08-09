@@ -330,57 +330,137 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('step4-disadvantages-a').textContent = disadvantagesA || 'No disadvantages listed';
         document.getElementById('step4-disadvantages-b').textContent = disadvantagesB || 'No disadvantages listed';
 
-        // Reset all sliders to 50/50
-        const sliders = document.querySelectorAll('.comparison-slider');
-        sliders.forEach(slider => {
-            slider.value = 50;
+        // Reset all steppers to 50/50
+        const steppers = [
+            'stepper-1-advantages', 'stepper-1-disadvantages',
+            'stepper-2-advantages', 'stepper-2-disadvantages', 
+            'stepper-3-option-a', 'stepper-3-option-b',
+            'stepper-4-option-a', 'stepper-4-option-b'
+        ];
+        steppers.forEach(stepperId => {
+            const stepper = document.getElementById(stepperId);
+            if (stepper) {
+                stepper.value = 50;
+            }
         });
 
-        // Initialize sliders and set up listeners
-        initializeSliders();
+        // Initialize steppers and set up listeners
+        initializeSteppers();
         setupComparisonInputListeners();
 
         showSection(scoringSection);
     }
 
-    // Slider functionality
+    // Stepper functionality
     function setupComparisonInputListeners() {
-        // Set up listeners for each slider
-        const sliders = [
-            ['slider-1-2', 'value-1', 'value-2'],
-            ['slider-3-4', 'value-3', 'value-4'],
-            ['slider-5-6', 'value-5', 'value-6'],
-            ['slider-7-8', 'value-7', 'value-8']
+        // Set up listeners for each stepper group
+        const stepperGroups = [
+            ['stepper-1-advantages', 'stepper-1-disadvantages', 'total-1', 'total-1-status'],
+            ['stepper-2-advantages', 'stepper-2-disadvantages', 'total-2', 'total-2-status'],
+            ['stepper-3-option-a', 'stepper-3-option-b', 'total-3', 'total-3-status'],
+            ['stepper-4-option-a', 'stepper-4-option-b', 'total-4', 'total-4-status']
         ];
 
-        sliders.forEach(([sliderId, leftValueId, rightValueId]) => {
-            const slider = document.getElementById(sliderId);
-            const leftValue = document.getElementById(leftValueId);
-            const rightValue = document.getElementById(rightValueId);
+        stepperGroups.forEach(([input1Id, input2Id, totalId, statusId]) => {
+            const input1 = document.getElementById(input1Id);
+            const input2 = document.getElementById(input2Id);
 
-            if (slider && leftValue && rightValue) {
-                slider.addEventListener('input', () => handleSliderChange(slider, leftValue, rightValue));
-                // Update gradient background on change
-                slider.addEventListener('input', () => updateSliderBackground(slider));
+            if (input1 && input2) {
+                // Set up input change listeners with changed input ID
+                input1.addEventListener('input', () => handleStepperChange(input1Id, input1Id, input2Id, totalId, statusId));
+                input2.addEventListener('input', () => handleStepperChange(input2Id, input1Id, input2Id, totalId, statusId));
+                
+                // Set up button click listeners
+                setupStepperButtons(input1Id);
+                setupStepperButtons(input2Id);
             }
         });
     }
 
-    function handleSliderChange(slider, leftValue, rightValue) {
-        const sliderValue = parseInt(slider.value);
-        // Reverse the logic: moving slider right increases the right value
-        const leftPoints = 100 - sliderValue;
-        const rightPoints = sliderValue;
+    function handleStepperChange(changedInputId, input1Id, input2Id, totalId, statusId) {
+        const input1 = document.getElementById(input1Id);
+        const input2 = document.getElementById(input2Id);
+        const totalElement = document.getElementById(totalId);
+        const statusElement = document.getElementById(statusId);
         
-        leftValue.textContent = leftPoints;
-        rightValue.textContent = rightPoints;
+        if (!input1 || !input2 || !totalElement || !statusElement) return;
         
-        // Update accessibility attributes
-        updateAriaValueText(slider.id, leftPoints, rightPoints);
-        updateSpinButtonValues(leftValue.id, leftPoints);
-        updateSpinButtonValues(rightValue.id, rightPoints);
+        const changedInput = document.getElementById(changedInputId);
+        const otherInput = changedInputId === input1Id ? input2 : input1;
+        
+        if (!changedInput || !otherInput) return;
+        
+        // Get the value that was just changed
+        let changedValue = parseInt(changedInput.value) || 0;
+        
+        // Ensure changed value is within bounds
+        changedValue = Math.max(0, Math.min(100, changedValue));
+        changedInput.value = changedValue;
+        
+        // Auto-balance: set other input to make total = 100
+        const otherValue = 100 - changedValue;
+        const oldOtherValue = parseInt(otherInput.value) || 0;
+        
+        // Only update if the other value actually needs to change
+        if (oldOtherValue !== otherValue) {
+            otherInput.value = otherValue;
+            
+            // Add visual feedback to show the auto-adjustment
+            otherInput.classList.add('auto-adjusted');
+            setTimeout(() => {
+                otherInput.classList.remove('auto-adjusted');
+            }, 800);
+        }
+        
+        // Update total display (always 100 now)
+        totalElement.textContent = '100';
+        
+        // Update status indicator (always valid now)
+        statusElement.textContent = '✓';
+        statusElement.className = 'total-status valid';
+        
+        // Auto-balance if one input changes (optional feature)
+        // Commented out to preserve user intent
+        /*
+        if (document.activeElement === input1) {
+            input2.value = Math.max(0, 100 - value1);
+        } else if (document.activeElement === input2) {
+            input1.value = Math.max(0, 100 - value2);
+        }
+        */
         
         saveData();
+    }
+    
+    function setupStepperButtons(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        // Find the stepper buttons for this input
+        const stepperControl = input.parentElement;
+        const minusBtn = stepperControl.querySelector('.stepper-btn.minus');
+        const plusBtn = stepperControl.querySelector('.stepper-btn.plus');
+        
+        if (minusBtn) {
+            minusBtn.addEventListener('click', () => adjustStepperValue(inputId, -5));
+        }
+        
+        if (plusBtn) {
+            plusBtn.addEventListener('click', () => adjustStepperValue(inputId, 5));
+        }
+    }
+    
+    function adjustStepperValue(inputId, change) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        const currentValue = parseInt(input.value) || 0;
+        const newValue = Math.max(0, Math.min(100, currentValue + change));
+        
+        input.value = newValue;
+        
+        // Trigger change event to update totals
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function updateSliderBackground(slider) {
@@ -390,30 +470,153 @@ document.addEventListener('DOMContentLoaded', function() {
         slider.style.background = `linear-gradient(to right, #2196f3 0%, #2196f3 ${percentage}%, #ff6b35 ${percentage}%, #ff6b35 100%)`;
     }
 
-    function initializeSliders() {
-        // Initialize all sliders with proper backgrounds
-        const sliders = document.querySelectorAll('.comparison-slider');
-        sliders.forEach(slider => {
-            updateSliderBackground(slider);
+    function initializeSteppers() {
+        // Initialize all stepper totals
+        const stepperGroups = [
+            ['stepper-1-advantages', 'stepper-1-disadvantages', 'total-1', 'total-1-status'],
+            ['stepper-2-advantages', 'stepper-2-disadvantages', 'total-2', 'total-2-status'],
+            ['stepper-3-option-a', 'stepper-3-option-b', 'total-3', 'total-3-status'],
+            ['stepper-4-option-a', 'stepper-4-option-b', 'total-4', 'total-4-status']
+        ];
+
+        stepperGroups.forEach(([input1Id, input2Id, totalId, statusId]) => {
+            // Use input1Id as the "changed" input to trigger auto-balancing on initialization
+            handleStepperChange(input1Id, input1Id, input2Id, totalId, statusId);
+        });
+    }
+    
+    function validateStepperTotals() {
+        const stepperGroups = [
+            { 
+                inputs: ['stepper-1-advantages', 'stepper-1-disadvantages'], 
+                totalId: 'total-1', 
+                stepName: 'Step 1: Compare within Option A' 
+            },
+            { 
+                inputs: ['stepper-2-advantages', 'stepper-2-disadvantages'], 
+                totalId: 'total-2', 
+                stepName: 'Step 2: Compare within Option B' 
+            },
+            { 
+                inputs: ['stepper-3-option-a', 'stepper-3-option-b'], 
+                totalId: 'total-3', 
+                stepName: 'Step 3: Compare Advantages' 
+            },
+            { 
+                inputs: ['stepper-4-option-a', 'stepper-4-option-b'], 
+                totalId: 'total-4', 
+                stepName: 'Step 4: Compare Disadvantages' 
+            }
+        ];
+
+        const invalidGroups = [];
+        
+        stepperGroups.forEach((group, index) => {
+            const [input1Id, input2Id] = group.inputs;
+            const input1 = document.getElementById(input1Id);
+            const input2 = document.getElementById(input2Id);
+            
+            if (input1 && input2) {
+                const value1 = parseInt(input1.value) || 0;
+                const value2 = parseInt(input2.value) || 0;
+                const total = value1 + value2;
+                
+                if (total !== 100) {
+                    invalidGroups.push({
+                        stepNumber: index + 1,
+                        stepName: group.stepName,
+                        total: total,
+                        totalId: group.totalId,
+                        firstInputId: input1Id
+                    });
+                }
+            }
+        });
+
+        return {
+            isValid: invalidGroups.length === 0,
+            invalidGroups: invalidGroups,
+            totalSteps: stepperGroups.length
+        };
+    }
+    
+    function showValidationError(invalidGroups) {
+        // Create user-friendly error message
+        let errorMessage = 'Please ensure all point allocations total exactly 100 before calculating results.\n\n';
+        
+        if (invalidGroups.length === 1) {
+            const group = invalidGroups[0];
+            errorMessage += `${group.stepName} currently totals ${group.total} points instead of 100.`;
+        } else {
+            errorMessage += 'The following steps need adjustment:\n';
+            invalidGroups.forEach(group => {
+                errorMessage += `• ${group.stepName}: ${group.total} points\n`;
+            });
+            errorMessage += '\nEach comparison must total exactly 100 points.';
+        }
+        
+        // Show alert with error message
+        alert(errorMessage);
+        announceToScreenReader(errorMessage, 'assertive');
+        
+        // Focus on the first invalid input
+        if (invalidGroups.length > 0) {
+            const firstInvalidInput = document.getElementById(invalidGroups[0].firstInputId);
+            if (firstInvalidInput) {
+                firstInvalidInput.focus();
+                firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        // Add visual indicators to invalid groups
+        addValidationVisualIndicators(invalidGroups);
+    }
+    
+    function addValidationVisualIndicators(invalidGroups) {
+        // First, clear any existing error indicators
+        clearValidationVisualIndicators();
+        
+        // Add error styling to invalid groups
+        invalidGroups.forEach(group => {
+            const totalElement = document.getElementById(group.totalId);
+            if (totalElement) {
+                const stepperTotal = totalElement.closest('.stepper-total');
+                if (stepperTotal) {
+                    stepperTotal.classList.add('validation-error');
+                }
+            }
+        });
+        
+        // Remove error indicators after 5 seconds
+        setTimeout(clearValidationVisualIndicators, 5000);
+    }
+    
+    function clearValidationVisualIndicators() {
+        const errorElements = document.querySelectorAll('.validation-error');
+        errorElements.forEach(element => {
+            element.classList.remove('validation-error');
         });
     }
 
     function calculateResult() {
-        // Get values from sliders
-        const slider12 = parseInt(document.getElementById('slider-1-2').value) || 50;
-        const slider34 = parseInt(document.getElementById('slider-3-4').value) || 50;
-        const slider56 = parseInt(document.getElementById('slider-5-6').value) || 50;
-        const slider78 = parseInt(document.getElementById('slider-7-8').value) || 50;
-
-        // Convert slider values to circle values (reversed logic)
-        const circle1 = 100 - slider12;  // Advantages A internal
-        const circle2 = slider12;        // Disadvantages A internal
-        const circle3 = 100 - slider34;  // Advantages B internal
-        const circle4 = slider34;        // Disadvantages B internal
-        const circle5 = 100 - slider56;  // Advantages A vs B
-        const circle6 = slider56;        // Advantages B vs A
-        const circle7 = 100 - slider78;  // Disadvantages A vs B
-        const circle8 = slider78;        // Disadvantages B vs A
+        // Note: Validation should rarely be needed since auto-balancing ensures totals = 100
+        // but keeping as safeguard for any edge cases
+        const validation = validateStepperTotals();
+        
+        if (!validation.isValid) {
+            showValidationError(validation.invalidGroups);
+            return; // Prevent calculation until all totals are valid
+        }
+        
+        // Get values from stepper inputs
+        const circle1 = parseInt(document.getElementById('stepper-1-advantages').value) || 50;    // Advantages A internal
+        const circle2 = parseInt(document.getElementById('stepper-1-disadvantages').value) || 50; // Disadvantages A internal
+        const circle3 = parseInt(document.getElementById('stepper-2-advantages').value) || 50;    // Advantages B internal  
+        const circle4 = parseInt(document.getElementById('stepper-2-disadvantages').value) || 50; // Disadvantages B internal
+        const circle5 = parseInt(document.getElementById('stepper-3-option-a').value) || 50;      // Advantages A vs B
+        const circle6 = parseInt(document.getElementById('stepper-3-option-b').value) || 50;      // Advantages B vs A
+        const circle7 = parseInt(document.getElementById('stepper-4-option-a').value) || 50;      // Disadvantages A vs B
+        const circle8 = parseInt(document.getElementById('stepper-4-option-b').value) || 50;      // Disadvantages B vs A
 
         // Calculate final scores using PDF methodology
         // Option A: (circle1 + circle5) - (circle2 + circle7)
@@ -1095,11 +1298,15 @@ Made with Decision Helper 🧠✨`;
                 disadvantagesA: document.getElementById('disadvantages-a')?.value || '',
                 advantagesB: document.getElementById('advantages-b')?.value || '',
                 disadvantagesB: document.getElementById('disadvantages-b')?.value || '',
-                sliderValues: {
-                    'slider-1-2': document.getElementById('slider-1-2')?.value || 50,
-                    'slider-3-4': document.getElementById('slider-3-4')?.value || 50,
-                    'slider-5-6': document.getElementById('slider-5-6')?.value || 50,
-                    'slider-7-8': document.getElementById('slider-7-8')?.value || 50
+                stepperValues: {
+                    'stepper-1-advantages': document.getElementById('stepper-1-advantages')?.value || 50,
+                    'stepper-1-disadvantages': document.getElementById('stepper-1-disadvantages')?.value || 50,
+                    'stepper-2-advantages': document.getElementById('stepper-2-advantages')?.value || 50,
+                    'stepper-2-disadvantages': document.getElementById('stepper-2-disadvantages')?.value || 50,
+                    'stepper-3-option-a': document.getElementById('stepper-3-option-a')?.value || 50,
+                    'stepper-3-option-b': document.getElementById('stepper-3-option-b')?.value || 50,
+                    'stepper-4-option-a': document.getElementById('stepper-4-option-a')?.value || 50,
+                    'stepper-4-option-b': document.getElementById('stepper-4-option-b')?.value || 50
                 }
             },
             navigationHistory: [...navigationHistory],
@@ -1160,27 +1367,18 @@ Made with Decision Helper 🧠✨`;
             if (data.formData.advantagesB) document.getElementById('advantages-b').value = data.formData.advantagesB;
             if (data.formData.disadvantagesB) document.getElementById('disadvantages-b').value = data.formData.disadvantagesB;
 
-            // Restore slider values
-            Object.entries(data.formData.sliderValues).forEach(([sliderId, value]) => {
-                const slider = document.getElementById(sliderId);
-                if (slider) {
-                    slider.value = value;
-                    updateSliderBackground(slider);
-                    
-                    // Update corresponding value displays
-                    const parts = sliderId.split('-'); // ['slider', '1', '2']
-                    const leftValueId = `value-${parts[1]}`;
-                    const rightValueId = `value-${parts[2]}`;
-                    const leftValue = document.getElementById(leftValueId);
-                    const rightValue = document.getElementById(rightValueId);
-                    
-                    if (leftValue && rightValue) {
-                        // Use the reversed logic for display values
-                        leftValue.textContent = 100 - value;
-                        rightValue.textContent = value;
+            // Restore stepper values
+            if (data.formData.stepperValues) {
+                Object.entries(data.formData.stepperValues).forEach(([stepperId, value]) => {
+                    const stepper = document.getElementById(stepperId);
+                    if (stepper) {
+                        stepper.value = value;
                     }
-                }
-            });
+                });
+                
+                // Re-initialize steppers to update totals
+                initializeSteppers();
+            }
 
             // Navigate to the correct section (skip adding to history since we're restoring)
             navigateToSection(data.currentSection, true);
@@ -1228,7 +1426,7 @@ Made with Decision Helper 🧠✨`;
                     if (skipHistory) {
                         showSection(scoringSection, true);
                         setupComparisonInputListeners();
-                        initializeSliders();
+                        initializeSteppers();
                     } else {
                         proceedToScoring();
                     }
@@ -1384,11 +1582,15 @@ Made with Decision Helper 🧠✨`;
                 disadvantagesA: document.getElementById('disadvantages-a')?.value || '',
                 advantagesB: document.getElementById('advantages-b')?.value || '',
                 disadvantagesB: document.getElementById('disadvantages-b')?.value || '',
-                sliderValues: {
-                    'slider-1-2': document.getElementById('slider-1-2')?.value || 50,
-                    'slider-3-4': document.getElementById('slider-3-4')?.value || 50,
-                    'slider-5-6': document.getElementById('slider-5-6')?.value || 50,
-                    'slider-7-8': document.getElementById('slider-7-8')?.value || 50
+                stepperValues: {
+                    'stepper-1-advantages': document.getElementById('stepper-1-advantages')?.value || 50,
+                    'stepper-1-disadvantages': document.getElementById('stepper-1-disadvantages')?.value || 50,
+                    'stepper-2-advantages': document.getElementById('stepper-2-advantages')?.value || 50,
+                    'stepper-2-disadvantages': document.getElementById('stepper-2-disadvantages')?.value || 50,
+                    'stepper-3-option-a': document.getElementById('stepper-3-option-a')?.value || 50,
+                    'stepper-3-option-b': document.getElementById('stepper-3-option-b')?.value || 50,
+                    'stepper-4-option-a': document.getElementById('stepper-4-option-a')?.value || 50,
+                    'stepper-4-option-b': document.getElementById('stepper-4-option-b')?.value || 50
                 }
             }
         };
@@ -1480,27 +1682,18 @@ Made with Decision Helper 🧠✨`;
         if (document.getElementById('advantages-b')) document.getElementById('advantages-b').value = state.formData.advantagesB;
         if (document.getElementById('disadvantages-b')) document.getElementById('disadvantages-b').value = state.formData.disadvantagesB;
 
-        // Restore slider values
-        Object.entries(state.formData.sliderValues).forEach(([sliderId, value]) => {
-            const slider = document.getElementById(sliderId);
-            if (slider) {
-                slider.value = value;
-                updateSliderBackground(slider);
-                
-                // Update corresponding value displays
-                const parts = sliderId.split('-');
-                const leftValueId = `value-${parts[1]}`;
-                const rightValueId = `value-${parts[2]}`;
-                const leftValue = document.getElementById(leftValueId);
-                const rightValue = document.getElementById(rightValueId);
-                
-                if (leftValue && rightValue) {
-                    // Use the reversed logic for display values
-                    leftValue.textContent = 100 - value;
-                    rightValue.textContent = value;
+        // Restore stepper values
+        if (state.formData.stepperValues) {
+            Object.entries(state.formData.stepperValues).forEach(([stepperId, value]) => {
+                const stepper = document.getElementById(stepperId);
+                if (stepper) {
+                    stepper.value = value;
                 }
-            }
-        });
+            });
+            
+            // Re-initialize steppers to update totals
+            initializeSteppers();
+        }
 
         // Update section-specific elements
         if (selectedOptionA && selectedOptionB) {
